@@ -57,6 +57,7 @@ class Circuit():
     signal_2 = 0
     signal_3 = 0
     operator_order_num = 3
+    trigonometric_function_expand_order_num = 4
     # ====================================================================
 
     def __init__(self):
@@ -97,12 +98,43 @@ class Circuit():
             self.operator_order_num)+fun.annihilation_operator_n(self.operator_order_num))), self.operator_identity)
         self.operator_phi_3 = np.power(2*self.E_c3/self.E_j3, 0.25)*np.kron(np.kron(self.operator_identity, self.operator_identity), (fun.creation_operator_n(
             self.operator_order_num)+fun.annihilation_operator_n(self.operator_order_num)))
-        self.operator_n_1=complex(0,0.5)*np.power(0.5*self.E_j1/self.E_c1, 0.25)*np.kron(np.kron((fun.creation_operator_n(
+        self.operator_n_1 = complex(0, 0.5)*np.power(0.5*self.E_j1/self.E_c1, 0.25)*np.kron(np.kron((fun.creation_operator_n(
             self.operator_order_num)-fun.annihilation_operator_n(self.operator_order_num)), self.operator_identity), self.operator_identity)
-        self.operator_n_2 = complex(0,0.5)*np.power(0.5*self.E_j2/self.E_c2, 0.25)*np.kron(np.kron(self.operator_identity, (fun.creation_operator_n(
+        self.operator_n_2 = complex(0, 0.5)*np.power(0.5*self.E_j2/self.E_c2, 0.25)*np.kron(np.kron(self.operator_identity, (fun.creation_operator_n(
             self.operator_order_num)-fun.annihilation_operator_n(self.operator_order_num))), self.operator_identity)
-        self.operator_n_3 = complex(0,0.5)*np.power(0.5*self.E_j3/self.E_c3, 0.25)*np.kron(np.kron(self.operator_identity, self.operator_identity), (fun.creation_operator_n(
+        self.operator_n_3 = complex(0, 0.5)*np.power(0.5*self.E_j3/self.E_c3, 0.25)*np.kron(np.kron(self.operator_identity, self.operator_identity), (fun.creation_operator_n(
             self.operator_order_num)-fun.annihilation_operator_n(self.operator_order_num)))
 
-    def Hamilton_calculation(self,n):
-        Hamilton=
+    def Hamiltonian_calculation(self, n):
+        """The function calculating the n'st time piece's Hamiltonian.
+
+        Args:
+            n (int): The n'st time piece.
+
+        Returns:
+            np.array: The n'st time piece's Hamiltonian.
+        """
+        # signal_1_n: The approximate value of signal_1's n'st time piece.
+        # signal_2_n: The approximate value of signal_2's n'st time piece.
+        # signal_3_n: The approximate value of signal_3's n'st time piece.
+        signal_1_n = 0.5*(self.signal_1[n-1]+self.signal_1[n])
+        signal_2_n = 0.5*(self.signal_2[n-1]+self.signal_2[n])
+        signal_3_n = 0.5*(self.signal_3[n-1]+self.signal_3[n])
+        # Adding electric charge energy to returned Hamiltonian.
+        Hamiltonian = 4*self.E_c1*np.matmul(self.operator_n_1, self.operator_n_1)+4*self.E_c2*np.matmul(
+            self.operator_n_2, self.operator_n_2)+4*self.E_c3*np.matmul(self.operator_n_3, self.operator_n_3)+8*self.E_c12*np.matmul(self.operator_n_1, self.operator_n_2)+8*self.E_c23*np.matmul(self.operator_n_2, self.operator_n_3)+8*self.E_c13*np.matmul(self.operator_n_1, self.operator_n_3)
+        # Adding left qubit's Josephson energy to returned Hamiltionian.
+        Hamiltonian = Hamiltonian - self.E_j1*np.cos(self.phi_r1+np.pi*self.M_z_1*signal_1_n/ct.PHI_ZERO)*fun.cos_alpha_matrix_n(
+            2*np.pi*self.M_x_1*signal_1_n/ct.PHI_ZERO, self.operator_phi_1, self.trigonometric_function_expand_order_num)
+        # Adding middle coupler's Josephson energy to returned Hamiltionian.
+        Hamiltonian = Hamiltonian - self.E_j2*np.cos(self.phi_r2+np.pi*self.M_z_2*signal_2_n/ct.PHI_ZERO)*fun.cos_alpha_matrix_n(
+            2*np.pi*self.M_x_2*signal_2_n/ct.PHI_ZERO, self.operator_phi_2, self.trigonometric_function_expand_order_num)
+        # Adding right qubit's Josephson energy to returned Hamiltionian.
+        Hamiltonian = Hamiltonian - self.E_j3*np.cos(self.phi_r3+np.pi*self.M_z_3*signal_3_n/ct.PHI_ZERO)*fun.cos_alpha_matrix_n(
+            2*np.pi*self.M_x_3*signal_3_n/ct.PHI_ZERO, self.operator_phi_3, self.trigonometric_function_expand_order_num)
+        return Hamiltonian
+
+    def time_evolution_operator_calculation(self):
+        time_evolution_operator=0
+        for i in range(self.t_piece_num):
+            time_evolution_operator=np.matmul(self.Hamiltonian_calculation(i+1),)

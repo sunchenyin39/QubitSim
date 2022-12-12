@@ -1,4 +1,4 @@
 import numpy as np
 
-a=np.linspace(1,2,11)
-print(a)
+a=np.ones([2,2])
+print(np.exp(a))
