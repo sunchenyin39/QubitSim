@@ -69,7 +69,7 @@ class Circuit():
     # exponent_function_expand_order_num.
     t_start = 0
     t_end = 20E-9
-    t_piece = 0.05E-12
+    t_piece = 1E-12
     t_piece_num = int((t_end-t_start)/t_piece)
     t_list = np.linspace(t_start, t_end, t_piece_num+1)
     signal_1 = np.zeros(t_piece_num+1)
@@ -102,12 +102,12 @@ class Circuit():
         # E_c12: Energy of electric charge of the capacitor between left qubit and middle coupler.
         # E_c23: Energy of electric charge of the capacitor between right qubit and middle coupler.
         # E_c13: Energy of electric charge of the capacitor between left qubit and right qubit.
-        self.E_c1 = 0.5*ct.E*2/self.C_1
-        self.E_c2 = 0.5*ct.E*2/self.C_2
-        self.E_c3 = 0.5*ct.E*2/self.C_3
-        self.E_c12 = 0.5*ct.E*2/self.C_12
-        self.E_c23 = 0.5*ct.E*2/self.C_23
-        self.E_c13 = 0.5*ct.E*2/self.C_13
+        self.E_c1 = 0.5*ct.E**2/self.C_1
+        self.E_c2 = 0.5*ct.E**2/self.C_2
+        self.E_c3 = 0.5*ct.E**2/self.C_3
+        self.E_c12 = 0.5*ct.E**2/self.C_12
+        self.E_c23 = 0.5*ct.E**2/self.C_23
+        self.E_c13 = 0.5*ct.E**2/self.C_13
 
         # Josephsn energy:
         # E_j1_1: Josephsn energy of left qubit's DCSQUID's first junction.
@@ -123,10 +123,9 @@ class Circuit():
         self.E_j3_1 = 0.5*ct.PHI_ZERO*self.I_c3_1/np.pi
         self.E_j3_2 = 0.5*ct.PHI_ZERO*self.I_c3_2/np.pi
 
-        self.E_j1=self.E_j1_1+self.E_j1_2
-        self.E_j2=self.E_j2_1+self.E_j2_2
-        self.E_j3=self.E_j3_1+self.E_j3_2
-        
+        self.E_j1 = self.E_j1_1+self.E_j1_2
+        self.E_j2 = self.E_j2_1+self.E_j2_2
+        self.E_j3 = self.E_j3_1+self.E_j3_2
 
         # Quantum operator:
         # operator_identity: Identity operator with dimension of operator_order_num.
@@ -200,7 +199,7 @@ class Circuit():
         Returns:
             np.array: The whole time evolution operator.
         """
-        time_evolution_operator = self.operator_identity
+        time_evolution_operator = np.eye(self.operator_order_num**3)
         for i in range(self.t_piece_num):
             time_evolution_operator = np.matmul(
                 self.time_evolution_operator_calculation(i+1), time_evolution_operator)
