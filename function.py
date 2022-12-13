@@ -58,6 +58,23 @@ def cos_alpha_matrix_n(alpha, matrix, n):
     return result
 
 
+def sin_alpha_matrix_n(alpha, matrix, n):
+    """Taylor expansion of sin(alpha+matrix). The independent variable is a matrix and 
+    matrix multiplication is not scalar multiplication.
+
+    Args:
+        alpha (float): Phase.
+        matrix (np.array): The independent variable matrix to be expanded.
+        n (int): Order of expansion.
+
+    Returns:
+        np.array: return matrix.
+    """
+    result = np.sin(alpha)*cos_matrix_n(matrix, n) + \
+        np.cos(alpha)*sin_matrix_n(matrix, n)
+    return result
+
+
 def exp_matrix_n(matrix, n):
     """The function of exponent's taylor expansion. The independent variable is a matrix and 
     matrix multiplication is not scalar multiplication.

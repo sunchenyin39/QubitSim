@@ -37,18 +37,18 @@ class Circuit():
     R_3_2 = 18000
 
     # Remanence phase:
-    # phi_r1: The remanence phase of left qubits's SQUID.
-    # phi_r2: The remanence phase of middle coupler's SQUID.
-    # phi_r3: The remanence phase of right qubit's SQUID.
+    # phi_r1: The remanence phase of left qubits's DCSQUID.
+    # phi_r2: The remanence phase of middle coupler's DCSQUID.
+    # phi_r3: The remanence phase of right qubit's DCSQUID.
     # PS: phi_ri/2/pi*PHI_ZERO=Phi_ri.
     phi_r1 = 0.0
     phi_r2 = 0.12
     phi_r3 = 0.39
 
     # Mutual inductance:
-    # M_z_1: The mutual inductance between signal line 1 and left qubits's SQUID.
-    # M_z_2: The mutual inductance between signal line 2 and middle coupler's SQUID.
-    # M_z_3: The mutual inductance between signal line 3 and right qubits's SQUID.
+    # M_z_1: The mutual inductance between signal line 1 and left qubits's DCSQUID.
+    # M_z_2: The mutual inductance between signal line 2 and middle coupler's DCSQUID.
+    # M_z_3: The mutual inductance between signal line 3 and right qubits's DCSQUID.
     M_z_1 = 1E-12
     M_z_2 = 1E-12
     M_z_3 = 1E-12
@@ -56,16 +56,28 @@ class Circuit():
     M_x_2 = 1E-12
     M_x_3 = 1E-12
 
+    # t_start: Starting time point.
+    # t_end: Ending time point.
+    # t_piece: Piece time.
+    # t_piece_num: Number of piece time.
+    # t_list: Time list.
+    # signal_1: Signal adding to left qubit's DCSQUID.
+    # signal_2: Signal adding to middle coupler's DCSQUID.
+    # signal_3: Signal adding to right qubit's DCSQUID.
+    # operator_order_num.
+    # trigonometric_function_expand_order_num.
+    # exponent_function_expand_order_num.
     t_start = 0
     t_end = 20E-9
     t_piece = 0.05E-12
-    t_piece_num = (t_end-t_start)/t_piece
+    t_piece_num = int((t_end-t_start)/t_piece)
     t_list = np.linspace(t_start, t_end, t_piece_num+1)
-    signal_1 = 0
-    signal_2 = 0
-    signal_3 = 0
+    signal_1 = np.zeros(t_piece_num+1)
+    signal_2 = np.zeros(t_piece_num+1)
+    signal_3 = np.zeros(t_piece_num+1)
     operator_order_num = 3
     trigonometric_function_expand_order_num = 4
+    exponent_function_expand_order_num = 100
     # ====================================================================
 
     def __init__(self):
@@ -98,12 +110,23 @@ class Circuit():
         self.E_c13 = 0.5*ct.E*2/self.C_13
 
         # Josephsn energy:
-        # E_j1: Josephsn energy of left qubit's SQUID.
-        # E_j2: Josephsn energy of middle coupler's SQUID.
-        # E_j3: Josephsn energy of right qubit's SQUID.
-        self.E_j1 = ct.PHI_ZERO*self.I_c1/np.pi
-        self.E_j2 = ct.PHI_ZERO*self.I_c2/np.pi
-        self.E_j3 = ct.PHI_ZERO*self.I_c3/np.pi
+        # E_j1_1: Josephsn energy of left qubit's DCSQUID's first junction.
+        # E_j1_2: Josephsn energy of left qubit's DCSQUID's second junction.
+        # E_j2_1: Josephsn energy of middle coupler's DCSQUID's first junction.
+        # E_j2_2: Josephsn energy of middle coupler's DCSQUID's second junction.
+        # E_j3_1: Josephsn energy of right qubit's DCSQUID's first junction.
+        # E_j3_2: Josephsn energy of right qubit's DCSQUID's second junction.
+        self.E_j1_1 = 0.5*ct.PHI_ZERO*self.I_c1_1/np.pi
+        self.E_j1_2 = 0.5*ct.PHI_ZERO*self.I_c1_2/np.pi
+        self.E_j2_1 = 0.5*ct.PHI_ZERO*self.I_c2_1/np.pi
+        self.E_j2_2 = 0.5*ct.PHI_ZERO*self.I_c2_2/np.pi
+        self.E_j3_1 = 0.5*ct.PHI_ZERO*self.I_c3_1/np.pi
+        self.E_j3_2 = 0.5*ct.PHI_ZERO*self.I_c3_2/np.pi
+
+        self.E_j1=self.E_j1_1+self.E_j1_2
+        self.E_j2=self.E_j2_1+self.E_j2_2
+        self.E_j3=self.E_j3_1+self.E_j3_2
+        
 
         # Quantum operator:
         # operator_identity: Identity operator with dimension of operator_order_num.
@@ -142,22 +165,43 @@ class Circuit():
         signal_1_n = 0.5*(self.signal_1[n-1]+self.signal_1[n])
         signal_2_n = 0.5*(self.signal_2[n-1]+self.signal_2[n])
         signal_3_n = 0.5*(self.signal_3[n-1]+self.signal_3[n])
+
         # Adding electric charge energy to returned Hamiltonian.
         Hamiltonian = 4*self.E_c1*np.matmul(self.operator_n_1, self.operator_n_1)+4*self.E_c2*np.matmul(
             self.operator_n_2, self.operator_n_2)+4*self.E_c3*np.matmul(self.operator_n_3, self.operator_n_3)+8*self.E_c12*np.matmul(self.operator_n_1, self.operator_n_2)+8*self.E_c23*np.matmul(self.operator_n_2, self.operator_n_3)+8*self.E_c13*np.matmul(self.operator_n_1, self.operator_n_3)
         # Adding left qubit's Josephson energy to returned Hamiltionian.
-        Hamiltonian = Hamiltonian - self.E_j1*np.cos(self.phi_r1+np.pi*self.M_z_1*signal_1_n/ct.PHI_ZERO)*fun.cos_alpha_matrix_n(
-            2*np.pi*self.M_x_1*signal_1_n/ct.PHI_ZERO, self.operator_phi_1, self.trigonometric_function_expand_order_num)
+        Hamiltonian = Hamiltonian - (self.E_j1_1+self.E_j1_2)*np.cos(self.phi_r1+np.pi*self.M_z_1*signal_1_n/ct.PHI_ZERO)*fun.cos_alpha_matrix_n(2*np.pi*self.M_x_1*signal_1_n/ct.PHI_ZERO, self.operator_phi_1, self.trigonometric_function_expand_order_num) - (
+            self.E_j1_2-self.E_j1_1)*np.sin(self.phi_r1+np.pi*self.M_z_1*signal_1_n/ct.PHI_ZERO)*fun.sin_alpha_matrix_n(2 * np.pi*self.M_x_1*signal_1_n/ct.PHI_ZERO, self.operator_phi_1, self.trigonometric_function_expand_order_num)
         # Adding middle coupler's Josephson energy to returned Hamiltionian.
-        Hamiltonian = Hamiltonian - self.E_j2*np.cos(self.phi_r2+np.pi*self.M_z_2*signal_2_n/ct.PHI_ZERO)*fun.cos_alpha_matrix_n(
-            2*np.pi*self.M_x_2*signal_2_n/ct.PHI_ZERO, self.operator_phi_2, self.trigonometric_function_expand_order_num)
+        Hamiltonian = Hamiltonian - (self.E_j2_1+self.E_j2_2)*np.cos(self.phi_r2+np.pi*self.M_z_2*signal_2_n/ct.PHI_ZERO)*fun.cos_alpha_matrix_n(2*np.pi*self.M_x_2*signal_2_n/ct.PHI_ZERO, self.operator_phi_2, self.trigonometric_function_expand_order_num)-(
+            self.E_j2_2-self.E_j2_1)*np.sin(self.phi_r2+np.pi*self.M_z_2*signal_2_n/ct.PHI_ZERO)*fun.sin_alpha_matrix_n(2*np.pi*self.M_x_2*signal_2_n/ct.PHI_ZERO, self.operator_phi_2, self.trigonometric_function_expand_order_num)
         # Adding right qubit's Josephson energy to returned Hamiltionian.
-        Hamiltonian = Hamiltonian - self.E_j3*np.cos(self.phi_r3+np.pi*self.M_z_3*signal_3_n/ct.PHI_ZERO)*fun.cos_alpha_matrix_n(
-            2*np.pi*self.M_x_3*signal_3_n/ct.PHI_ZERO, self.operator_phi_3, self.trigonometric_function_expand_order_num)
+        Hamiltonian = Hamiltonian - (self.E_j3_1+self.E_j3_2)*np.cos(self.phi_r3+np.pi*self.M_z_3*signal_3_n/ct.PHI_ZERO)*fun.cos_alpha_matrix_n(2*np.pi*self.M_x_3*signal_3_n/ct.PHI_ZERO, self.operator_phi_3, self.trigonometric_function_expand_order_num)-(
+            self.E_j3_2-self.E_j3_1)*np.sin(self.phi_r3+np.pi*self.M_z_3*signal_3_n/ct.PHI_ZERO)*fun.sin_alpha_matrix_n(2*np.pi*self.M_x_3*signal_3_n/ct.PHI_ZERO, self.operator_phi_3, self.trigonometric_function_expand_order_num)
+
         return Hamiltonian
 
-    def time_evolution_operator_calculation(self):
-        time_evolution_operator = 0
+    def time_evolution_operator_calculation(self, n):
+        """The function calculating the n'st time piece's time evolution operator.
+
+        Args:
+            n (int): The n'st time piece.
+
+        Returns:
+            np.array: The n'st time piece's time evolution operator.
+        """
+        time_evolution_operator = fun.exp_matrix_n(-2*np.pi*complex(0, 1)*self.Hamiltonian_calculation(
+            n)*self.t_piece/ct.H, self.exponent_function_expand_order_num)
+        return time_evolution_operator
+
+    def time_evolution_operator_calculation_all(self):
+        """The function calculating the whole time evolution operator.
+
+        Returns:
+            np.array: The whole time evolution operator.
+        """
+        time_evolution_operator = self.operator_identity
         for i in range(self.t_piece_num):
             time_evolution_operator = np.matmul(
-                self.Hamiltonian_calculation(i+1),)
+                self.time_evolution_operator_calculation(i+1), time_evolution_operator)
+        return time_evolution_operator
