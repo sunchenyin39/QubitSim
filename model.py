@@ -13,29 +13,37 @@ class Circuit():
     # C_12: The capacitor between left qubit and middle coupler.
     # C_23: The capacitor between right qubbit and middle coupler.
     # C_13: The capacitor between left qubit and right qubit.
-    C_1 = 88E-15
-    C_2 = 125E-15
+    C_1 = 88.1E-15
+    C_2 = 125.4E-15
     C_3 = 88E-15
-    C_12 = 10E-15
-    C_23 = 10E-15
+    C_12 = 10.11E-15
+    C_23 = 10.11E-15
     C_13 = 6E-16
 
-    # Josephson junction critical current:
-    # I_c1: The critical current of single junction of left qubit.
-    # I_c2: The critical current of single junction of middle coupler.
-    # I_c3: The critical current of single junction of right qubits.
-    I_c1 = 1E-6
-    I_c2 = 1E-6
-    I_c3 = 1E-6
+    # Room temperature resistor of Josephson junction:
+    # V_test: Voltage using to test room temperature resister.
+    # R_1_1: The room temperature resistor of first junction of left qubit's DCSQUID.
+    # R_1_2: The room temperature resistor of second junction of left qubit's DCSQUID.
+    # R_2_1: The room temperature resistor of first junction of middle coupler's DCSQUID.
+    # R_2_2: The room temperature resistor of second junction of middle coupler's DCSQUID.
+    # R_3_1: The room temperature resistor of first junction of right qubits's DCSQUID.
+    # R_3_2: The room temperature resistor of second junction of right qubits's DCSQUID.
+    V_test = 2.8E-4
+    R_1_1 = 18000
+    R_1_2 = 18000
+    R_2_1 = 4000
+    R_2_2 = 2000
+    R_3_1 = 18000
+    R_3_2 = 18000
 
     # Remanence phase:
     # phi_r1: The remanence phase of left qubits's SQUID.
     # phi_r2: The remanence phase of middle coupler's SQUID.
     # phi_r3: The remanence phase of right qubit's SQUID.
     # PS: phi_ri/2/pi*PHI_ZERO=Phi_ri.
-    phi_r1 = 0.1
-    phi_r2 = 0.1
-    phi_r3 = 0.1
+    phi_r1 = 0.0
+    phi_r2 = 0.12
+    phi_r3 = 0.39
 
     # Mutual inductance:
     # M_z_1: The mutual inductance between signal line 1 and left qubits's SQUID.
@@ -61,6 +69,20 @@ class Circuit():
     # ====================================================================
 
     def __init__(self):
+        # Josephson junction critical current:
+        # I_c1_1: The critical current of first junction of left qubit's DCSQUID.
+        # I_c1_2: The critical current of second junction of left qubit's DCSQUID.
+        # I_c2_1: The critical current of first junction of middle coupler's DCSQUID.
+        # I_c2_2: The critical current of second junction of middle coupler's DCSQUID.
+        # I_c3_1: The critical current of first junction of right qubits's DCSQUID.
+        # I_c3_2: The critical current of second junction of right qubits's DCSQUID.
+        self.I_c1_1 = self.V_test/self.R_1_1
+        self.I_c1_2 = self.V_test/self.R_1_2
+        self.I_c2_1 = self.V_test/self.R_2_1
+        self.I_c2_2 = self.V_test/self.R_2_2
+        self.I_c3_1 = self.V_test/self.R_3_1
+        self.I_c3_2 = self.V_test/self.R_3_2
+
         # Energy of electric charge:
         # E_c1: Energy of electric charge of left qubit.
         # E_c2: Energy of electric charge of middle coupler.
@@ -135,6 +157,7 @@ class Circuit():
         return Hamiltonian
 
     def time_evolution_operator_calculation(self):
-        time_evolution_operator=0
+        time_evolution_operator = 0
         for i in range(self.t_piece_num):
-            time_evolution_operator=np.matmul(self.Hamiltonian_calculation(i+1),)
+            time_evolution_operator = np.matmul(
+                self.Hamiltonian_calculation(i+1),)
