@@ -42,9 +42,9 @@ class Circuit():
     # phi_r2: The remanence phase of middle coupler's DCSQUID.
     # phi_r3: The remanence phase of right qubit's DCSQUID.
     # PS: phi_ri/2/pi*PHI_ZERO=Phi_ri.
-    phi_r1 = 0.0
-    phi_r2 = 0.12
-    phi_r3 = 0.39
+    phi_r1 = 0.0*np.pi
+    phi_r2 = 0.12*np.pi
+    phi_r3 = 0.39*np.pi
 
     # Mutual inductance:
     # M_z_1: The mutual inductance between signal line 1 and left qubits's DCSQUID.
@@ -73,9 +73,9 @@ class Circuit():
     t_piece = 1E-12
     t_piece_num = int((t_end-t_start)/t_piece)
     t_list = np.linspace(t_start, t_end, t_piece_num+1)
-    signal_1 = np.ones(t_piece_num+1)*1.0205E-3
-    signal_2 = np.ones(t_piece_num+1)*9.22E-3
-    signal_3 = np.ones(t_piece_num+1)*0.000758
+    signal_1 = np.ones(t_piece_num+1)*0  # 1.0205E-3
+    signal_2 = np.ones(t_piece_num+1)*0  # 9.22E-3
+    signal_3 = np.ones(t_piece_num+1)*0  # 0.000758
     operator_order_num = 3
     trigonometric_function_expand_order_num = 4
     exponent_function_expand_order_num = 100
@@ -96,6 +96,12 @@ class Circuit():
         self.I_c3_1 = self.V_test/self.R_3_1
         self.I_c3_2 = self.V_test/self.R_3_2
 
+        # M_C: Capacitor matrix.
+        # M_Ec: Energy of electric charge matrix.
+        self.M_C = np.array([[self.C_1+self.C_12+self.C_13, -self.C_12, -self.C_13], [
+            -self.C_12, self.C_2+self.C_12+self.C_23, -self.C_23], [-self.C_13, -self.C_23, self.C_3+self.C_12+self.C_23]])
+        self.M_Ec = 0.5*ct.E**2*np.linalg.inv(self.M_C)
+
         # Energy of electric charge:
         # E_c1: Energy of electric charge of left qubit.
         # E_c2: Energy of electric charge of middle coupler.
@@ -103,12 +109,12 @@ class Circuit():
         # E_c12: Energy of electric charge of the capacitor between left qubit and middle coupler.
         # E_c23: Energy of electric charge of the capacitor between right qubit and middle coupler.
         # E_c13: Energy of electric charge of the capacitor between left qubit and right qubit.
-        self.E_c1 = 0.5*ct.E**2/self.C_1
-        self.E_c2 = 0.5*ct.E**2/self.C_2
-        self.E_c3 = 0.5*ct.E**2/self.C_3
-        self.E_c12 = 0.5*ct.E**2/self.C_12
-        self.E_c23 = 0.5*ct.E**2/self.C_23
-        self.E_c13 = 0.5*ct.E**2/self.C_13
+        self.E_c1 = self.M_Ec[0][0]
+        self.E_c2 = self.M_Ec[1][1]
+        self.E_c3 = self.M_Ec[2][2]
+        self.E_c12 = self.M_Ec[0][1]
+        self.E_c23 = self.M_Ec[1][2]
+        self.E_c13 = self.M_Ec[0][2]
 
         # Josephsn energy:
         # E_j1_1: Josephsn energy of left qubit's DCSQUID's first junction.

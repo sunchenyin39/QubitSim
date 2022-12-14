@@ -13,7 +13,10 @@ circuit = model.Circuit()
 H_0=circuit.Hamiltonian_calculation(0)
 eigenvalue,featurevector= np.linalg.eig(H_0)
 for i in range(27):
-    print(np.max(np.abs(featurevector[:,i]*featurevector[:,i])))
+    print(np.max(np.abs(featurevector[:,i])))
+
+# eigenvalue=eigenvalue+1E-20
+# print((eigenvalue-min(eigenvalue))/ct.H/1E9)
 
 # print(np.sqrt(8*circuit.E_j1*circuit.E_c1*np.cos(circuit.phi_r1+np.pi*circuit.M_z_1*circuit.signal_1[0]/ct.PHI_ZERO))/ct.H*2*np.pi/1E9)
 # print(np.sqrt(8*circuit.E_j2*circuit.E_c2*np.cos(circuit.phi_r2+np.pi*circuit.M_z_2*circuit.signal_2[0]/ct.PHI_ZERO))/ct.H*2*np.pi/1E9)
