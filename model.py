@@ -1,5 +1,6 @@
-# This file contains circuit's parameters.
+# This file contains circuit's model.
 import numpy as np
+import progressbar
 import constant as ct
 import function as fun
 
@@ -122,10 +123,9 @@ class Circuit():
         self.E_j2_2 = 0.5*ct.PHI_ZERO*self.I_c2_2/np.pi
         self.E_j3_1 = 0.5*ct.PHI_ZERO*self.I_c3_1/np.pi
         self.E_j3_2 = 0.5*ct.PHI_ZERO*self.I_c3_2/np.pi
-
-        self.E_j1 = self.E_j1_1+self.E_j1_2
-        self.E_j2 = self.E_j2_1+self.E_j2_2
-        self.E_j3 = self.E_j3_1+self.E_j3_2
+        self.E_j1 = (self.E_j1_1+self.E_j1_2)*np.cos(self.phi_r1)
+        self.E_j2 = (self.E_j2_1+self.E_j2_2)*np.cos(self.phi_r2)
+        self.E_j3 = (self.E_j3_1+self.E_j3_2)*np.cos(self.phi_r3)
 
         # Quantum operator:
         # operator_identity: Identity operator with dimension of operator_order_num.
@@ -149,8 +149,13 @@ class Circuit():
         self.operator_n_3 = complex(0, 0.5)*np.power(0.5*self.E_j3/self.E_c3, 0.25)*np.kron(np.kron(self.operator_identity, self.operator_identity), (fun.creation_operator_n(
             self.operator_order_num)-fun.annihilation_operator_n(self.operator_order_num)))
 
+        # Electric charge energy Hamiltonian.
+        self.Hamiltonian_electric = 4*self.E_c1*np.matmul(self.operator_n_1, self.operator_n_1)+4*self.E_c2*np.matmul(
+            self.operator_n_2, self.operator_n_2)+4*self.E_c3*np.matmul(self.operator_n_3, self.operator_n_3)+8*self.E_c12*np.matmul(self.operator_n_1, self.operator_n_2)+8*self.E_c23*np.matmul(self.operator_n_2, self.operator_n_3)+8*self.E_c13*np.matmul(self.operator_n_1, self.operator_n_3)
+
     def Hamiltonian_calculation(self, n):
-        """The function calculating the n'st time piece's Hamiltonian.
+        """The function calculating the n'st time piece's Hamiltonian. If n equals to zero, this function calculating
+        
 
         Args:
             n (int): The n'st time piece.
@@ -161,15 +166,17 @@ class Circuit():
         # signal_1_n: The approximate value of signal_1's n'st time piece.
         # signal_2_n: The approximate value of signal_2's n'st time piece.
         # signal_3_n: The approximate value of signal_3's n'st time piece.
-        signal_1_n = 0.5*(self.signal_1[n-1]+self.signal_1[n])
-        signal_2_n = 0.5*(self.signal_2[n-1]+self.signal_2[n])
-        signal_3_n = 0.5*(self.signal_3[n-1]+self.signal_3[n])
+        if n == 0:
+            signal_1_n = self.signal_1[0]
+            signal_2_n = self.signal_2[0]
+            signal_3_n = self.signal_3[0]
+        else:
+            signal_1_n = 0.5*(self.signal_1[n-1]+self.signal_1[n])
+            signal_2_n = 0.5*(self.signal_2[n-1]+self.signal_2[n])
+            signal_3_n = 0.5*(self.signal_3[n-1]+self.signal_3[n])
 
-        # Adding electric charge energy to returned Hamiltonian.
-        Hamiltonian = 4*self.E_c1*np.matmul(self.operator_n_1, self.operator_n_1)+4*self.E_c2*np.matmul(
-            self.operator_n_2, self.operator_n_2)+4*self.E_c3*np.matmul(self.operator_n_3, self.operator_n_3)+8*self.E_c12*np.matmul(self.operator_n_1, self.operator_n_2)+8*self.E_c23*np.matmul(self.operator_n_2, self.operator_n_3)+8*self.E_c13*np.matmul(self.operator_n_1, self.operator_n_3)
         # Adding left qubit's Josephson energy to returned Hamiltionian.
-        Hamiltonian = Hamiltonian - (self.E_j1_1+self.E_j1_2)*np.cos(self.phi_r1+np.pi*self.M_z_1*signal_1_n/ct.PHI_ZERO)*fun.cos_alpha_matrix_n(2*np.pi*self.M_x_1*signal_1_n/ct.PHI_ZERO, self.operator_phi_1, self.trigonometric_function_expand_order_num) - (
+        Hamiltonian = self.Hamiltonian_electric - (self.E_j1_1+self.E_j1_2)*np.cos(self.phi_r1+np.pi*self.M_z_1*signal_1_n/ct.PHI_ZERO)*fun.cos_alpha_matrix_n(2*np.pi*self.M_x_1*signal_1_n/ct.PHI_ZERO, self.operator_phi_1, self.trigonometric_function_expand_order_num) - (
             self.E_j1_2-self.E_j1_1)*np.sin(self.phi_r1+np.pi*self.M_z_1*signal_1_n/ct.PHI_ZERO)*fun.sin_alpha_matrix_n(2 * np.pi*self.M_x_1*signal_1_n/ct.PHI_ZERO, self.operator_phi_1, self.trigonometric_function_expand_order_num)
         # Adding middle coupler's Josephson energy to returned Hamiltionian.
         Hamiltonian = Hamiltonian - (self.E_j2_1+self.E_j2_2)*np.cos(self.phi_r2+np.pi*self.M_z_2*signal_2_n/ct.PHI_ZERO)*fun.cos_alpha_matrix_n(2*np.pi*self.M_x_2*signal_2_n/ct.PHI_ZERO, self.operator_phi_2, self.trigonometric_function_expand_order_num)-(
@@ -199,8 +206,10 @@ class Circuit():
         Returns:
             np.array: The whole time evolution operator.
         """
+        p = progressbar.ProgressBar()
         time_evolution_operator = np.eye(self.operator_order_num**3)
-        for i in range(self.t_piece_num):
+        print("Calculating the whole time evolution operator:")
+        for i in p(range(self.t_piece_num)):
             time_evolution_operator = np.matmul(
                 self.time_evolution_operator_calculation(i+1), time_evolution_operator)
         return time_evolution_operator
