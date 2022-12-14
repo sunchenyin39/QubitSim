@@ -155,7 +155,7 @@ class Circuit():
 
     def Hamiltonian_calculation(self, n):
         """The function calculating the n'st time piece's Hamiltonian. If n equals to zero, this function calculating
-        
+
 
         Args:
             n (int): The n'st time piece.

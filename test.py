@@ -12,8 +12,6 @@ circuit.signal_1 = Amplitude*Envolope*np.cos(2*np.pi*f01_Q1*circuit.t_list)
 
 H_0=circuit.Hamiltonian_calculation(0)
 
-print(type(U[0][0]))
-
-# eigenvalue,featurevector= np.linalg.eig(U)
-# print("特征值：", eigenvalue)
-# print("特征向量：", featurevector)
+eigenvalue,featurevector= np.linalg.eig(H_0)
+for i in range(27):
+    print(max(np.abs(featurevector[:,i]*featurevector[:,i])))
