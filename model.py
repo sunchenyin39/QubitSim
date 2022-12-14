@@ -73,9 +73,9 @@ class Circuit():
     t_piece = 1E-12
     t_piece_num = int((t_end-t_start)/t_piece)
     t_list = np.linspace(t_start, t_end, t_piece_num+1)
-    signal_1 = np.zeros(t_piece_num+1)
-    signal_2 = np.zeros(t_piece_num+1)
-    signal_3 = np.zeros(t_piece_num+1)
+    signal_1 = np.ones(t_piece_num+1)*1.0205E-3
+    signal_2 = np.ones(t_piece_num+1)*9.22E-3
+    signal_3 = np.ones(t_piece_num+1)*0.000758
     operator_order_num = 3
     trigonometric_function_expand_order_num = 4
     exponent_function_expand_order_num = 100
