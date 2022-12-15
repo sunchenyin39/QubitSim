@@ -80,7 +80,7 @@ class Circuit():
     signal_2 = np.ones(t_piece_num+1)*0  # 9.22E-3
     signal_3 = np.ones(t_piece_num+1)*0  # 0.000758
     operator_order_num = 3
-    operator_order_num_change=operator_order_num+5
+    operator_order_num_change = operator_order_num+5
     trigonometric_function_expand_order_num = 8
     exponent_function_expand_order_num = 1000
     # ====================================================================
@@ -202,9 +202,31 @@ class Circuit():
                     M_Ej[i][j] = -M_Ej_0[i][j]
         return M_Ej
 
-    def operator_phi_generator(self,E_c,E_j,operator_order_num):
-        
-        
+    def operator_phi_generator(self, E_c, E_j, operator_order_num):
+        """The function generating phase operator with order of operator_order_num.
+
+        Args:
+            E_c (float): Electric energy.
+            E_j (float): Josephson energy.
+            operator_order_num (int): Expanding order of operator. 
+
+        Returns:
+            np.array: Returned phase operator.
+        """
+        return np.power(2*E_c/E_j, 0.25)*(fun.creation_operator_n(operator_order_num)+fun.annihilation_operator_n(operator_order_num))
+
+    def operator_n_generator(self, E_c, E_j, operator_order_num):
+        """The function generating phase operator with order of operator_order_num.
+
+        Args:
+            E_c (float): Electric energy.
+            E_j (float): Josephson energy.
+            operator_order_num (int): Expanding order of operator. 
+
+        Returns:
+            np.array: Returned phase operator.
+        """
+        return complex(0, 0.5)*np.power(0.5*E_j/E_c, 0.25)*(fun.creation_operator_n(operator_order_num)-fun.annihilation_operator_n(operator_order_num))
 
     def Hamiltonian_calculation(self, n):
         """The function calculating the n'st time piece's Hamiltonian. If n equals to zero, this function calculating
@@ -229,12 +251,29 @@ class Circuit():
             signal_3_n = 0.5*(self.signal_3[n-1]+self.signal_3[n])
 
         # Adding left qubit's Josephson energy to returned Hamiltionian.
-        Hamiltonian1
+        Hamiltonian_temp = 4*self.E_c1*np.matmul(self.operator_n_generator(self.E_c1, self.E_j1, self.operator_order_num_change),
+                                                 self.operator_n_generator(self.E_c1, self.E_j1, self.operator_order_num_change))-self.E_j1*fun.cos_matrix_n(self.operator_phi_generator(self.E_c1, self.E_j1, self.operator_order_num_change)-signal_1_n, self.trigonometric_function_expand_order_num)
+        Hamiltonian_temp = Hamiltonian_temp[0:self.operator_order_num,
+                                            0:self.operator_order_num]
+        Hamiltonian = self.Hamiltonian_interact + \
+            np.kron(np.kron(Hamiltonian_temp, self.operator_identity),
+                    self.operator_identity)
         # Adding middle coupler's Josephson energy to returned Hamiltionian.
-        
+        Hamiltonian_temp = 4*self.E_c2*np.matmul(self.operator_n_generator(self.E_c2, self.E_j2, self.operator_order_num_change),
+                                                 self.operator_n_generator(self.E_c2, self.E_j2, self.operator_order_num_change))-self.E_j2*fun.cos_matrix_n(self.operator_phi_generator(self.E_c2, self.E_j2, self.operator_order_num_change)-signal_2_n, self.trigonometric_function_expand_order_num)
+        Hamiltonian_temp = Hamiltonian_temp[0:self.operator_order_num,
+                                            0:self.operator_order_num]
+        Hamiltonian = Hamiltonian + \
+            np.kron(np.kron(self.operator_identity, Hamiltonian_temp),
+                    self.operator_identity)
         # Adding right qubit's Josephson energy to returned Hamiltionian.
-        
-
+        Hamiltonian_temp = 4*self.E_c3*np.matmul(self.operator_n_generator(self.E_c3, self.E_j3, self.operator_order_num_change),
+                                                 self.operator_n_generator(self.E_c3, self.E_j3, self.operator_order_num_change))-self.E_j3*fun.cos_matrix_n(self.operator_phi_generator(self.E_c3, self.E_j3, self.operator_order_num_change)-signal_3_n, self.trigonometric_function_expand_order_num)
+        Hamiltonian_temp = Hamiltonian_temp[0:self.operator_order_num,
+                                            0:self.operator_order_num]
+        Hamiltonian = Hamiltonian + \
+            np.kron(np.kron(self.operator_identity,
+                    self.operator_identity), Hamiltonian_temp)
         return Hamiltonian
 
     def time_evolution_operator_calculation(self, n):

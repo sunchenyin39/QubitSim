@@ -10,12 +10,12 @@ circuit = model.Circuit()
 # Envolope = 1-np.cos(2*np.pi*circuit.t_list/(circuit.t_end-circuit.t_start))
 # circuit.signal_1 = Amplitude*Envolope*np.cos(2*np.pi*f01_Q1*circuit.t_list)
 
-print(np.sqrt(8*circuit.E_j1*circuit.E_c1)/ct.H/1e9)
+# print(np.sqrt(8*circuit.E_j1*circuit.E_c1)/ct.H/1e9)
 
 # print(circuit.M_Ec/ct.H/1e9)
-# H_0=circuit.Hamiltonian_calculation(0)
-# eigenvalue,featurevector= np.linalg.eig(H_0)
-# eigenvalue=np.real(eigenvalue)
+H_0=circuit.Hamiltonian_calculation(0)
+eigenvalue,featurevector= np.linalg.eig(H_0)
+eigenvalue=np.real(eigenvalue)
 # for i in range(27):
 #     print(np.max(np.abs(featurevector[:,i])))
-# print(2*np.sort((eigenvalue-min(eigenvalue))/ct.H/1E9))
+print(np.sort((eigenvalue-min(eigenvalue))/ct.H/1E9))
