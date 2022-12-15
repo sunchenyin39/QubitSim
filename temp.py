@@ -1,10 +1,5 @@
+import function as fun
 import numpy as np
 
-mat=np.random.rand(27,27)
-mat=mat+np.random.rand(27,27)*complex(0,1)
-eigenvalue, featurevector = np.linalg.eig(mat)
-
-
-
-print("特征值：", eigenvalue)
-print("特征向量：", featurevector)
+Y=complex(0,1)*(fun.annihilation_operator_n(8)-fun.creation_operator_n(8))/np.sqrt(2)
+print(np.linalg.matrix_power(Y,2))
