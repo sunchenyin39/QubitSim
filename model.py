@@ -21,7 +21,7 @@ class Circuit():
     C_23 = 10.11E-15
     C_13 = 6E-16
 
-    # Off inductance
+    # L_off: Off inductance between low coupled notes.
     L_off = 1
 
     # Room temperature resistor of Josephson junction:
@@ -53,6 +53,9 @@ class Circuit():
     # M_z_1: The mutual inductance between signal line 1 and left qubits's DCSQUID.
     # M_z_2: The mutual inductance between signal line 2 and middle coupler's DCSQUID.
     # M_z_3: The mutual inductance between signal line 3 and right qubits's DCSQUID.
+    # M_x_1: The mutual inductance between signal line 1 and left qubits's main loop.
+    # M_x_2: The mutual inductance between signal line 2 and middle coupler's main loop.
+    # M_x_3: The mutual inductance between signal line 3 and right qubits's main loop.
     M_z_1 = 1E-12
     M_z_2 = 1E-12
     M_z_3 = 1E-12
@@ -69,6 +72,7 @@ class Circuit():
     # signal_2: Signal adding to middle coupler's DCSQUID.
     # signal_3: Signal adding to right qubit's DCSQUID.
     # operator_order_num.
+    # operator_order_num_change: Operator expanding order using to calculating H0.
     # trigonometric_function_expand_order_num.
     # exponent_function_expand_order_num.
     t_start = 0
@@ -79,7 +83,7 @@ class Circuit():
     signal_1 = np.ones(t_piece_num+1)*0  # 1.0205E-3
     signal_2 = np.ones(t_piece_num+1)*0  # 9.22E-3
     signal_3 = np.ones(t_piece_num+1)*0  # 0.000758
-    operator_order_num = 3
+    operator_order_num = 4
     operator_order_num_change = operator_order_num+5
     trigonometric_function_expand_order_num = 8
     exponent_function_expand_order_num = 1000
@@ -120,79 +124,43 @@ class Circuit():
         self.E_c23 = self.M_Ec[1][2]
         self.E_c13 = self.M_Ec[0][2]
 
-        # M_L: Matrix of inductance.
-        # M_Ej: Matrix of Josephson energy.
-        self.M_L = self.M_L_generator()
-        self.M_Ej = self.M_Ej_generator()
-
-        # Josephsn energy:
-        # E_j1_1: Josephsn energy of left qubit's DCSQUID's first junction.
-        # E_j1_2: Josephsn energy of left qubit's DCSQUID's second junction.
-        # E_j2_1: Josephsn energy of middle coupler's DCSQUID's first junction.
-        # E_j2_2: Josephsn energy of middle coupler's DCSQUID's second junction.
-        # E_j3_1: Josephsn energy of right qubit's DCSQUID's first junction.
-        # E_j3_2: Josephsn energy of right qubit's DCSQUID's second junction.
-        self.E_j1_1 = 0.5*ct.PHI_ZERO*self.I_c1_1/np.pi
-        self.E_j1_2 = 0.5*ct.PHI_ZERO*self.I_c1_2/np.pi
-        self.E_j2_1 = 0.5*ct.PHI_ZERO*self.I_c2_1/np.pi
-        self.E_j2_2 = 0.5*ct.PHI_ZERO*self.I_c2_2/np.pi
-        self.E_j3_1 = 0.5*ct.PHI_ZERO*self.I_c3_1/np.pi
-        self.E_j3_2 = 0.5*ct.PHI_ZERO*self.I_c3_2/np.pi
-        self.E_j1 = self.M_Ej[0][0]
-        self.E_j2 = self.M_Ej[1][1]
-        self.E_j3 = self.M_Ej[2][2]
-
-        # Quantum operator:
         # operator_identity: Identity operator with dimension of operator_order_num.
-        # operator_phi_1: Phase operator of left qubit with dimension of operator_order_num.
-        # operator_phi_2: Phase operator of middle coupler with dimension of operator_order_num.
-        # operator_phi_3: Phase operator of right qubit with dimension of operator_order_num.
-        # operator_n_1: Cooper pair number operator of left qubit with dimension of operator_order_num.
-        # operator_n_2: Cooper pair number operator of middle coupler with dimension of operator_order_num.
-        # operator_n_3: Cooper pair number operator of right qubit with dimension of operator_order_num.
         self.operator_identity = np.eye(self.operator_order_num)
-        self.operator_phi_1 = np.power(2*self.E_c1/self.E_j1, 0.25)*np.kron(np.kron((fun.creation_operator_n(
-            self.operator_order_num)+fun.annihilation_operator_n(self.operator_order_num)), self.operator_identity), self.operator_identity)
-        self.operator_phi_2 = np.power(2*self.E_c2/self.E_j2, 0.25)*np.kron(np.kron(self.operator_identity, (fun.creation_operator_n(
-            self.operator_order_num)+fun.annihilation_operator_n(self.operator_order_num))), self.operator_identity)
-        self.operator_phi_3 = np.power(2*self.E_c3/self.E_j3, 0.25)*np.kron(np.kron(self.operator_identity, self.operator_identity), (fun.creation_operator_n(
-            self.operator_order_num)+fun.annihilation_operator_n(self.operator_order_num)))
-        self.operator_n_1 = complex(0, 0.5)*np.power(0.5*self.E_j1/self.E_c1, 0.25)*np.kron(np.kron((fun.creation_operator_n(
-            self.operator_order_num)-fun.annihilation_operator_n(self.operator_order_num)), self.operator_identity), self.operator_identity)
-        self.operator_n_2 = complex(0, 0.5)*np.power(0.5*self.E_j2/self.E_c2, 0.25)*np.kron(np.kron(self.operator_identity, (fun.creation_operator_n(
-            self.operator_order_num)-fun.annihilation_operator_n(self.operator_order_num))), self.operator_identity)
-        self.operator_n_3 = complex(0, 0.5)*np.power(0.5*self.E_j3/self.E_c3, 0.25)*np.kron(np.kron(self.operator_identity, self.operator_identity), (fun.creation_operator_n(
-            self.operator_order_num)-fun.annihilation_operator_n(self.operator_order_num)))
 
-        # Electric charge energy Hamiltonian.
-        self.Hamiltonian_interact = 8*self.E_c12*np.matmul(self.operator_n_1, self.operator_n_2)+8*self.E_c23*np.matmul(
-            self.operator_n_2, self.operator_n_3)+8*self.E_c13*np.matmul(self.operator_n_1, self.operator_n_3)
-        self.Hamiltonian_interact = self.Hamiltonian_interact + self.M_Ej[0][1]*np.matmul(self.operator_phi_1, self.operator_phi_2)+self.M_Ej[0][2]*np.matmul(
-            self.operator_phi_1, self.operator_phi_3)+self.M_Ej[1][2]*np.matmul(self.operator_phi_2, self.operator_phi_3)
-
-    def M_L_generator(self):
+    def M_L_generator(self, signal_1_n, signal_2_n, signal_3_n):
         """The function calculationg inductance matrix.
 
+        Args:
+            signal_1_n (float): The approximate value of signal_1's n'st time piece.
+            signal_2_n (float): The approximate value of signal_2's n'st time piece.
+            signal_3_n (float): The approximate value of signal_3's n'st time piece.
         Returns:
             np.array: Inductance matrix.
         """
-        phi = [self.phi_r1, self.phi_r2, self.phi_r3]
+        phi_list = [self.phi_r1+np.pi*self.M_z_1*signal_1_n/ct.PHI_ZERO, self.phi_r2+np.pi *
+                    self.M_z_2*signal_2_n/ct.PHI_ZERO, self.phi_r3+np.pi*self.M_z_3*signal_3_n/ct.PHI_ZERO]
         Ic_1 = [self.I_c1_1, self.I_c2_1, self.I_c3_1]
         Ic_2 = [self.I_c1_2, self.I_c2_2, self.I_c3_2]
         M_L = np.ones([3, 3])*self.L_off
         for i in range(3):
             M_L[i][i] = ct.PHI_ZERO/2/np.pi / \
                 np.sqrt(Ic_1[i]**2+Ic_2[i]**2+2*Ic_1[i]
-                        * Ic_2[i]*np.cos(2*phi[i]))
+                        * Ic_2[i]*np.cos(2*phi_list[i]))
         return M_L
 
-    def M_Ej_generator(self):
+    def M_Ej_generator(self, signal_1_n, signal_2_n, signal_3_n):
         """The function calculationg Josephson energy matrix.
+
+        Args:
+            signal_1_n (float): The approximate value of signal_1's n'st time piece.
+            signal_2_n (float): The approximate value of signal_2's n'st time piece.
+            signal_3_n (float): The approximate value of signal_3's n'st time piece.
 
         Returns:
             np.array: Josephson energy matrix.
         """
-        M_Ej_0 = ct.H**2/(4*np.pi**2*4*ct.E**2)/self.M_L
+        M_Ej_0 = ct.H**2/(4*np.pi**2*4*ct.E**2) / \
+            self.M_L_generator(signal_1_n, signal_2_n, signal_3_n)
         M_Ej = np.zeros([3, 3])
         for i in range(3):
             for j in range(3):
@@ -250,30 +218,68 @@ class Circuit():
             signal_2_n = 0.5*(self.signal_2[n-1]+self.signal_2[n])
             signal_3_n = 0.5*(self.signal_3[n-1]+self.signal_3[n])
 
-        # Adding left qubit's Josephson energy to returned Hamiltionian.
-        Hamiltonian_temp = 4*self.E_c1*np.matmul(self.operator_n_generator(self.E_c1, self.E_j1, self.operator_order_num_change),
-                                                 self.operator_n_generator(self.E_c1, self.E_j1, self.operator_order_num_change))-self.E_j1*fun.cos_matrix_n(self.operator_phi_generator(self.E_c1, self.E_j1, self.operator_order_num_change)-signal_1_n, self.trigonometric_function_expand_order_num)
+        # M_Ej: Matrix of Josephson energy.
+        # E_j1: Josephsn energy of left qubit's DCSQUID.
+        # E_j2: Josephsn energy of middle coupler's DCSQUID.
+        # E_j3: Josephsn energy of right qubit's DCSQUID.
+        M_Ej = self.M_Ej_generator(signal_1_n, signal_2_n, signal_3_n)
+        E_j1 = M_Ej[0][0]
+        E_j2 = M_Ej[1][1]
+        E_j3 = M_Ej[2][2]
+
+        # Quantum operator:
+        # operator_phi_1: Phase operator of left qubit with dimension of operator_order_num**3.
+        # operator_phi_2: Phase operator of middle coupler with dimension of operator_order_num**3.
+        # operator_phi_3: Phase operator of right qubit with dimension of operator_order_num**3.
+        # operator_n_1: Cooper pair number operator of left qubit with dimension of operator_order_num**3.
+        # operator_n_2: Cooper pair number operator of middle coupler with dimension of operator_order_num**3.
+        # operator_n_3: Cooper pair number operator of right qubit with dimension of operator_order_num**3.
+        operator_phi_1 = np.power(2*self.E_c1/E_j1, 0.25)*np.kron(np.kron((fun.creation_operator_n(
+            self.operator_order_num)+fun.annihilation_operator_n(self.operator_order_num)), self.operator_identity), self.operator_identity)
+        operator_phi_2 = np.power(2*self.E_c2/E_j2, 0.25)*np.kron(np.kron(self.operator_identity, (fun.creation_operator_n(
+            self.operator_order_num)+fun.annihilation_operator_n(self.operator_order_num))), self.operator_identity)
+        operator_phi_3 = np.power(2*self.E_c3/E_j3, 0.25)*np.kron(np.kron(self.operator_identity, self.operator_identity), (fun.creation_operator_n(
+            self.operator_order_num)+fun.annihilation_operator_n(self.operator_order_num)))
+        operator_n_1 = complex(0, 0.5)*np.power(0.5*E_j1/self.E_c1, 0.25)*np.kron(np.kron((fun.creation_operator_n(
+            self.operator_order_num)-fun.annihilation_operator_n(self.operator_order_num)), self.operator_identity), self.operator_identity)
+        operator_n_2 = complex(0, 0.5)*np.power(0.5*E_j2/self.E_c2, 0.25)*np.kron(np.kron(self.operator_identity, (fun.creation_operator_n(
+            self.operator_order_num)-fun.annihilation_operator_n(self.operator_order_num))), self.operator_identity)
+        operator_n_3 = complex(0, 0.5)*np.power(0.5*E_j3/self.E_c3, 0.25)*np.kron(np.kron(self.operator_identity, self.operator_identity), (fun.creation_operator_n(
+            self.operator_order_num)-fun.annihilation_operator_n(self.operator_order_num)))
+
+        # Adding left qubit's energy to returned Hamiltionian.
+        Hamiltonian_temp = 4*self.E_c1*np.matmul(self.operator_n_generator(self.E_c1, E_j1, self.operator_order_num_change),
+                                                 self.operator_n_generator(self.E_c1, E_j1, self.operator_order_num_change))-E_j1*fun.cos_matrix_n(self.operator_phi_generator(self.E_c1, E_j1, self.operator_order_num_change)-2*np.pi*self.M_x_1*signal_1_n/ct.PHI_ZERO, self.trigonometric_function_expand_order_num)
         Hamiltonian_temp = Hamiltonian_temp[0:self.operator_order_num,
                                             0:self.operator_order_num]
-        Hamiltonian = self.Hamiltonian_interact + \
-            np.kron(np.kron(Hamiltonian_temp, self.operator_identity),
-                    self.operator_identity)
-        # Adding middle coupler's Josephson energy to returned Hamiltionian.
-        Hamiltonian_temp = 4*self.E_c2*np.matmul(self.operator_n_generator(self.E_c2, self.E_j2, self.operator_order_num_change),
-                                                 self.operator_n_generator(self.E_c2, self.E_j2, self.operator_order_num_change))-self.E_j2*fun.cos_matrix_n(self.operator_phi_generator(self.E_c2, self.E_j2, self.operator_order_num_change)-signal_2_n, self.trigonometric_function_expand_order_num)
+        Hamiltonian = np.kron(np.kron(Hamiltonian_temp, self.operator_identity),
+                              self.operator_identity)
+        # Adding middle coupler's energy to returned Hamiltionian.
+        Hamiltonian_temp = 4*self.E_c2*np.matmul(self.operator_n_generator(self.E_c2, E_j2, self.operator_order_num_change),
+                                                 self.operator_n_generator(self.E_c2, E_j2, self.operator_order_num_change))-E_j2*fun.cos_matrix_n(self.operator_phi_generator(self.E_c2, E_j2, self.operator_order_num_change)-2*np.pi*self.M_x_2*signal_2_n/ct.PHI_ZERO, self.trigonometric_function_expand_order_num)
         Hamiltonian_temp = Hamiltonian_temp[0:self.operator_order_num,
                                             0:self.operator_order_num]
         Hamiltonian = Hamiltonian + \
             np.kron(np.kron(self.operator_identity, Hamiltonian_temp),
                     self.operator_identity)
-        # Adding right qubit's Josephson energy to returned Hamiltionian.
-        Hamiltonian_temp = 4*self.E_c3*np.matmul(self.operator_n_generator(self.E_c3, self.E_j3, self.operator_order_num_change),
-                                                 self.operator_n_generator(self.E_c3, self.E_j3, self.operator_order_num_change))-self.E_j3*fun.cos_matrix_n(self.operator_phi_generator(self.E_c3, self.E_j3, self.operator_order_num_change)-signal_3_n, self.trigonometric_function_expand_order_num)
+        # Adding right qubit's energy to returned Hamiltionian.
+        Hamiltonian_temp = 4*self.E_c3*np.matmul(self.operator_n_generator(self.E_c3, E_j3, self.operator_order_num_change),
+                                                 self.operator_n_generator(self.E_c3, E_j3, self.operator_order_num_change))-E_j3*fun.cos_matrix_n(self.operator_phi_generator(self.E_c3, E_j3, self.operator_order_num_change)-2*np.pi*self.M_x_3*signal_3_n/ct.PHI_ZERO, self.trigonometric_function_expand_order_num)
         Hamiltonian_temp = Hamiltonian_temp[0:self.operator_order_num,
                                             0:self.operator_order_num]
         Hamiltonian = Hamiltonian + \
             np.kron(np.kron(self.operator_identity,
                     self.operator_identity), Hamiltonian_temp)
+
+        # Hamiltonian_interact_electric: Electric interaction hamiltonian.
+        # Hamiltonian_interact_magnetic: Magnetic interaction hamiltonian.
+        Hamiltonian_interact_electric = 8*self.E_c12*np.matmul(operator_n_1, operator_n_2)+8*self.E_c23*np.matmul(
+            operator_n_2, operator_n_3)+8*self.E_c13*np.matmul(operator_n_1, operator_n_3)
+        Hamiltonian_interact_magnetic = M_Ej[0][1]*np.matmul(operator_phi_1, operator_phi_2)+M_Ej[0][2]*np.matmul(
+            operator_phi_1, operator_phi_3)+M_Ej[1][2]*np.matmul(operator_phi_2, operator_phi_3)
+
+        Hamiltonian = Hamiltonian+Hamiltonian_interact_electric+Hamiltonian_interact_magnetic
+
         return Hamiltonian
 
     def time_evolution_operator_calculation(self, n):
