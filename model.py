@@ -137,8 +137,7 @@ class Circuit():
         Returns:
             np.array: Inductance matrix.
         """
-        phi_list = [self.phi_r1+np.pi*self.M_z_1*signal_1/ct.PHI_ZERO, self.phi_r2+np.pi *
-                    self.M_z_2*signal_2/ct.PHI_ZERO, self.phi_r3+np.pi*self.M_z_3*signal_3/ct.PHI_ZERO]
+        phi_list = [self.phi_r1, self.phi_r2, self.phi_r3]
         Ic_1 = [self.I_c1_1, self.I_c2_1, self.I_c3_1]
         Ic_2 = [self.I_c1_2, self.I_c2_2, self.I_c3_2]
         M_L = np.ones([3, 3])*self.L_off
@@ -240,14 +239,14 @@ class Circuit():
 
         # Adding left qubit's energy to returned Hamiltionian.
         Hamiltonian_temp = 4*self.E_c1*np.matmul(self.operator_n_generator(self.E_c1, E_j1, self.operator_order_num_change),
-                                                 self.operator_n_generator(self.E_c1, E_j1, self.operator_order_num_change))-E_j1*fun.cos_matrix_n(self.operator_phi_generator(self.E_c1, E_j1, self.operator_order_num_change)-np.power(2*self.E_c1/E_j1, 0.25)*signal_1*np.eye(self.operator_order_num_change), self.trigonometric_function_expand_order_num)
+                                                 self.operator_n_generator(self.E_c1, E_j1, self.operator_order_num_change))-E_j1*fun.cos_matrix_n(self.operator_phi_generator(self.E_c1, E_j1, self.operator_order_num_change)-np.power(8*self.E_c1/E_j1, 0.25)*signal_1*np.eye(self.operator_order_num_change), self.trigonometric_function_expand_order_num)
         Hamiltonian_temp = Hamiltonian_temp[0:self.operator_order_num,
                                             0:self.operator_order_num]
         Hamiltonian = np.kron(np.kron(Hamiltonian_temp, self.operator_identity),
                               self.operator_identity)
         # Adding middle coupler's energy to returned Hamiltionian.
         Hamiltonian_temp = 4*self.E_c2*np.matmul(self.operator_n_generator(self.E_c2, E_j2, self.operator_order_num_change),
-                                                 self.operator_n_generator(self.E_c2, E_j2, self.operator_order_num_change))-E_j2*fun.cos_matrix_n(self.operator_phi_generator(self.E_c2, E_j2, self.operator_order_num_change)-np.power(2*self.E_c2/E_j2, 0.25)*signal_2*np.eye(self.operator_order_num_change), self.trigonometric_function_expand_order_num)
+                                                 self.operator_n_generator(self.E_c2, E_j2, self.operator_order_num_change))-E_j2*fun.cos_matrix_n(self.operator_phi_generator(self.E_c2, E_j2, self.operator_order_num_change)-np.power(8*self.E_c2/E_j2, 0.25)*signal_2*np.eye(self.operator_order_num_change), self.trigonometric_function_expand_order_num)
         Hamiltonian_temp = Hamiltonian_temp[0:self.operator_order_num,
                                             0:self.operator_order_num]
         Hamiltonian = Hamiltonian + \
@@ -255,7 +254,7 @@ class Circuit():
                     self.operator_identity)
         # Adding right qubit's energy to returned Hamiltionian.
         Hamiltonian_temp = 4*self.E_c3*np.matmul(self.operator_n_generator(self.E_c3, E_j3, self.operator_order_num_change),
-                                                 self.operator_n_generator(self.E_c3, E_j3, self.operator_order_num_change))-E_j3*fun.cos_matrix_n(self.operator_phi_generator(self.E_c3, E_j3, self.operator_order_num_change)-np.power(2*self.E_c3/E_j3, 0.25)*signal_3*np.eye(self.operator_order_num_change), self.trigonometric_function_expand_order_num)
+                                                 self.operator_n_generator(self.E_c3, E_j3, self.operator_order_num_change))-E_j3*fun.cos_matrix_n(self.operator_phi_generator(self.E_c3, E_j3, self.operator_order_num_change)-np.power(8*self.E_c3/E_j3, 0.25)*signal_3*np.eye(self.operator_order_num_change), self.trigonometric_function_expand_order_num)
         Hamiltonian_temp = Hamiltonian_temp[0:self.operator_order_num,
                                             0:self.operator_order_num]
         Hamiltonian = Hamiltonian + \
@@ -286,6 +285,7 @@ class Circuit():
         signal_1_middle = 0.5*(self.signal_1[n-1]+self.signal_1[n])
         signal_2_middle = 0.5*(self.signal_2[n-1]+self.signal_2[n])
         signal_3_middle = 0.5*(self.signal_3[n-1]+self.signal_3[n])
+
         Hamiltonian_middle = self.Hamiltonian_calculation(
             signal_1_middle, signal_2_middle, signal_3_middle)
         Hamiltonian_left = self.Hamiltonian_calculation(
@@ -338,7 +338,7 @@ class Circuit():
         for i in range(3):
             bare_state_index = bare_state_index+bare_state_list[i] * \
                 self.operator_order_num**(2-i)
-        return np.argmax(np.abs(self.dressed_featurevector[:, bare_state_index]))
+        return np.argmax(np.abs(self.dressed_featurevector[bare_state_index, :]))
 
     def run(self):
         # 1.Getting transformational matrix converting bare bases to dressed bases.
