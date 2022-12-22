@@ -32,5 +32,15 @@ circuit.signal_1 = Amplitude*Envolope*np.cos(2*np.pi*f01_Q1*circuit.t_list)
 # print((eigenvalue-min(eigenvalue))/ct.H/1E9)
 # print(np.real((featurevector)))
 
+# circuit.run()
+# print(circuit.time_evolution_operator_dressed_sub)
+
+# H_0=circuit.Hamiltonian_calculation(0,0,0,0,0,0)
+# print(H_0/ct.H/1E9)
+
+# eigenvalue,featurevector=circuit.transformational_matrix_generator()
+# # print((eigenvalue)/ct.H/1E9)
+# print(np.real((featurevector)))
+# circuit.run()
+# print(np.matmul(circuit.time_evolution_operator_dressed_sub,circuit.time_evolution_operator_dressed_sub.T.conjugate()))
 circuit.run()
-print(circuit.time_evolution_operator_dressed_sub)

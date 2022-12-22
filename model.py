@@ -89,10 +89,10 @@ class Circuit():
     signal_1z = np.ones(t_piece_num+1)*0
     signal_2z = np.ones(t_piece_num+1)*0
     signal_3z = np.ones(t_piece_num+1)*0
-    operator_order_num = 4
+    operator_order_num = 3
     operator_order_num_change = operator_order_num+5
     trigonometric_function_expand_order_num = 8
-    exponent_function_expand_order_num = 20
+    exponent_function_expand_order_num = 30
     # ====================================================================
 
     def __init__(self):
@@ -292,20 +292,21 @@ class Circuit():
         Returns:
             np.array: The n'st time piece's time evolution operator.
         """
+        t_piece = self.t_piece*1E9
         Hamiltonian_middle = self.Hamiltonian_calculation(
-            self.signal_1[2*n-1], self.signal_2[2*n-1], self.signal_3[2*n-1], self.signal_1z[2*n-1], self.signal_2z[2*n-1], self.signal_3z[2*n-1])
+            self.signal_1[2*n-1], self.signal_2[2*n-1], self.signal_3[2*n-1], self.signal_1z[2*n-1], self.signal_2z[2*n-1], self.signal_3z[2*n-1])/ct.H/1E9
         Hamiltonian_left = self.Hamiltonian_calculation(
-            self.signal_1[2*n-2], self.signal_2[2*n-2], self.signal_3[2*n-2], self.signal_1z[2*n-2], self.signal_2z[2*n-2], self.signal_3z[2*n-2])
+            self.signal_1[2*n-2], self.signal_2[2*n-2], self.signal_3[2*n-2], self.signal_1z[2*n-2], self.signal_2z[2*n-2], self.signal_3z[2*n-2])/ct.H/1E9
         Hamiltonian_right = self.Hamiltonian_calculation(
-            self.signal_1[2*n], self.signal_2[2*n], self.signal_3[2*n], self.signal_1z[2*n], self.signal_2z[2*n], self.signal_3z[2*n])
-        Hamiltonian_I = (Hamiltonian_right-Hamiltonian_left)/self.t_piece
+            self.signal_1[2*n], self.signal_2[2*n], self.signal_3[2*n], self.signal_1z[2*n], self.signal_2z[2*n], self.signal_3z[2*n])/ct.H/1E9
+        Hamiltonian_I = (Hamiltonian_right-Hamiltonian_left)/t_piece
         Hamiltonian_II = 4*(Hamiltonian_right+Hamiltonian_left -
-                            2*Hamiltonian_middle)/(self.t_piece**2)
+                            2*Hamiltonian_middle)/(t_piece**2)
         Hamiltonian_I0 = np.matmul(
             Hamiltonian_middle, Hamiltonian_I)-np.matmul(Hamiltonian_I, Hamiltonian_middle)
 
-        time_evolution_operator = fun.exp_matrix_n(-2*np.pi*complex(0, 1)/ct.H*(Hamiltonian_middle*self.t_piece+1/24*Hamiltonian_II *
-                                                   self.t_piece**3)+4*np.pi**2/12/(ct.H**2)*Hamiltonian_I0*self.t_piece**3, self.exponent_function_expand_order_num)
+        time_evolution_operator = fun.exp_matrix_n(-2*np.pi*complex(0, 1)*(Hamiltonian_middle*t_piece+1/24*Hamiltonian_II *
+                                                   t_piece**3)+4*np.pi**2/12*Hamiltonian_I0*t_piece**3, self.exponent_function_expand_order_num)
 
         return time_evolution_operator
 
@@ -369,6 +370,6 @@ class Circuit():
         for i in p(range(int(self.t_piece_num/2))):
             self.time_evolution_operator = np.matmul(
                 self.time_evolution_operator_calculation(i+1), self.time_evolution_operator)
-
+        print(self.time_evolution_operator)
         # 3.Dressed state process, subspace process, phase process.
         self.time_evolution_operator_dressed, self.time_evolution_operator_dressed_sub = self.dressed_state_subspace_phase_process()
