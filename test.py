@@ -43,4 +43,6 @@ circuit.signal_1 = Amplitude*Envolope*np.cos(2*np.pi*f01_Q1*circuit.t_list)
 # print(np.real((featurevector)))
 # circuit.run()
 # print(np.matmul(circuit.time_evolution_operator_dressed_sub,circuit.time_evolution_operator_dressed_sub.T.conjugate()))
+
+# print(circuit.time_evolution_operator_calculation(1))
 circuit.run()

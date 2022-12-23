@@ -3,6 +3,7 @@ import numpy as np
 import progressbar
 import constant as ct
 import function as fun
+from matplotlib import pyplot as plt
 
 
 class Circuit():
@@ -14,12 +15,12 @@ class Circuit():
     # C_12: The capacitor between left qubit and right qubit.
     # C_23: The capacitor between right qubit and middle coupler.
     # C_13: The capacitor between left qubit and middle coupler.
-    C_1 = 88.1E-15
-    C_2 = 88.1E-15
-    C_3 = 125.4E-15
-    C_12 = 6E-16
-    C_23 = 10.11E-15
-    C_13 = 10.11E-15
+    C_1 = 88.1E-15+1E-20
+    C_2 = 88.1E-15+1E-20
+    C_3 = 125.4E-15+1E-20
+    C_12 = 6E-16+1E-20
+    C_23 = 10.11E-15+1E-20
+    C_13 = 10.11E-15+1E-20
 
     # L_off: Off inductance between low coupled notes.
     L_off = 1
@@ -89,10 +90,10 @@ class Circuit():
     signal_1z = np.ones(t_piece_num+1)*0
     signal_2z = np.ones(t_piece_num+1)*0
     signal_3z = np.ones(t_piece_num+1)*0
-    operator_order_num = 3
+    operator_order_num = 4
     operator_order_num_change = operator_order_num+5
     trigonometric_function_expand_order_num = 8
-    exponent_function_expand_order_num = 30
+    exponent_function_expand_order_num = 15
     # ====================================================================
 
     def __init__(self):
@@ -114,7 +115,7 @@ class Circuit():
         # M_Ec: Matrix of energy of electric charge.
         self.M_C = np.array([[self.C_1+self.C_12+self.C_13, -self.C_12, -self.C_13], [
             -self.C_12, self.C_2+self.C_12+self.C_23, -self.C_23], [-self.C_13, -self.C_23, self.C_3+self.C_13+self.C_23]])
-        self.M_Ec = 0.5*ct.E**2*np.linalg.inv(self.M_C)
+        self.M_Ec = 0.5*ct.E**2*np.linalg.pinv(self.M_C)
 
         # Energy of electric charge:
         # E_c1: Energy of electric charge of left qubit.
@@ -366,10 +367,38 @@ class Circuit():
         # 2.Simulation calculating the whole time evolution operator.
         p = progressbar.ProgressBar()
         self.time_evolution_operator = np.eye(self.operator_order_num**3)
+        self.time_evolution_operator_path = []
+        self.time_evolution_operator_path.append(np.matmul(np.linalg.inv(
+            self.dressed_featurevector), np.matmul(self.time_evolution_operator, self.dressed_featurevector)))
         print("Calculating the whole time evolution operator:")
         for i in p(range(int(self.t_piece_num/2))):
             self.time_evolution_operator = np.matmul(
                 self.time_evolution_operator_calculation(i+1), self.time_evolution_operator)
-        print(self.time_evolution_operator)
+            self.time_evolution_operator_path.append(np.matmul(np.linalg.inv(
+                self.dressed_featurevector), np.matmul(self.time_evolution_operator, self.dressed_featurevector)))
+
         # 3.Dressed state process, subspace process, phase process.
         self.time_evolution_operator_dressed, self.time_evolution_operator_dressed_sub = self.dressed_state_subspace_phase_process()
+
+        # 4.Data process.
+        self.dataprocess()
+    
+    def dataprocess(self):
+        namelist=['00','01','10','11','20','02']
+        state_start=[0,0,3,3,3]
+        state_evolution=[1,2,3,4,5] 
+        curve_lists=np.zeros([5,len(self.time_evolution_operator_path)])
+        print(curve_lists)
+        index00 = self.dressed_state_index_find([0, 0, 0])
+        index01 = self.dressed_state_index_find([0, 1, 0])
+        index10 = self.dressed_state_index_find([1, 0, 0])
+        index11 = self.dressed_state_index_find([1, 1, 0])
+        index20 = self.dressed_state_index_find([2, 0, 0])
+        index02 = self.dressed_state_index_find([0, 2, 0])
+        index_list = [index00, index01, index10, index11,index20,index02]
+        for i in range(len(state_start)):
+            for j in range(len(self.time_evolution_operator_path)):
+                curve_lists[i][j]=np.abs(self.time_evolution_operator_path[j][index_list[state_start[i]]][index_list[state_evolution[j]]])
+        
+
+        
