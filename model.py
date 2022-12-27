@@ -203,14 +203,17 @@ class Circuit():
         """
         return complex(0, 0.5)*np.power(0.5*E_j/E_c, 0.25)*(fun.creation_operator_n(operator_order_num)-fun.annihilation_operator_n(operator_order_num))
 
-    def Hamiltonian_calculation(self, signal_1, signal_2, signal_3, signal_z1, signal_z2, signal_z3):
-        """The function calculating the n'st time piece's Hamiltonian. If n equals to zero, this function calculating
+    def Hamiltonian_calculation(self, signal_1, signal_2, signal_3, signal_1_aux, signal_2_aux, signal_3_aux, signal_z1, signal_z2, signal_z3):
+        """The function calculating Hamiltonian.
 
 
         Args:
-            signal_1(float): Signal_1's value.
-            signal_2(float): Signal_2's value.
-            signal_3(float): Signal_3's value.
+            signal_1(float): Middle value of signal_1.
+            signal_2(float): Middle value of signal_2.
+            signal_3(float): Middle value of signal_3.
+            signal_1_aux(float): Auxiliary value of signal_1.
+            signal_2_aux(float): Auxiliary value of signal_2.
+            signal_3_aux(float): Auxiliary value of signal_3.
             signal_1z(float): Signal_1z's value.
             signal_2z(float): Signal_2z's value.
             signal_3z(float): Signal_3z's value.
@@ -248,24 +251,26 @@ class Circuit():
         operator_n_3 = complex(0, 0.5)*np.power(0.5*E_j3/self.E_c3, 0.25)*np.kron(np.kron(self.operator_identity, self.operator_identity), (fun.creation_operator_n(
             self.operator_order_num)-fun.annihilation_operator_n(self.operator_order_num)))
 
+        Y = complex(0, 1)*(fun.annihilation_operator_n(self.operator_order_num_change) -
+                           fun.creation_operator_n(self.operator_order_num_change))/np.sqrt(2)
         # Adding left qubit's energy to returned Hamiltionian.
-        Hamiltonian_temp = 4*self.E_c1*np.matmul(self.operator_n_generator(self.E_c1, E_j1, self.operator_order_num_change),
-                                                 self.operator_n_generator(self.E_c1, E_j1, self.operator_order_num_change))-E_j1*fun.cos_matrix_n(self.operator_phi_generator(self.E_c1, E_j1, self.operator_order_num_change)-np.power(8*self.E_c1/E_j1, 0.25)*signal_1*np.eye(self.operator_order_num_change), self.trigonometric_function_expand_order_num)+(E_j1-0.5*np.sqrt(8*E_j1*self.E_c1))*np.eye(self.operator_order_num_change)
+        Hamiltonian_temp = 0.5*np.sqrt(8*self.E_c1*E_j1)*np.matmul((Y-signal_1_aux*np.eye(self.operator_order_num_change)), (Y-signal_1_aux*np.eye(self.operator_order_num_change)))-E_j1*fun.cos_matrix_n(self.operator_phi_generator(
+            self.E_c1, E_j1, self.operator_order_num_change)-np.power(8*self.E_c1/E_j1, 0.25)*signal_1*np.eye(self.operator_order_num_change), self.trigonometric_function_expand_order_num)+(E_j1-0.5*np.sqrt(8*E_j1*self.E_c1))*np.eye(self.operator_order_num_change)
         Hamiltonian_temp = Hamiltonian_temp[0:self.operator_order_num,
                                             0:self.operator_order_num]
         Hamiltonian = np.kron(np.kron(Hamiltonian_temp, self.operator_identity),
                               self.operator_identity)
         # Adding right qubit's energy to returned Hamiltionian.
-        Hamiltonian_temp = 4*self.E_c2*np.matmul(self.operator_n_generator(self.E_c2, E_j2, self.operator_order_num_change),
-                                                 self.operator_n_generator(self.E_c2, E_j2, self.operator_order_num_change))-E_j2*fun.cos_matrix_n(self.operator_phi_generator(self.E_c2, E_j2, self.operator_order_num_change)-np.power(8*self.E_c2/E_j2, 0.25)*signal_2*np.eye(self.operator_order_num_change), self.trigonometric_function_expand_order_num)+(E_j2-0.5*np.sqrt(8*E_j2*self.E_c2))*np.eye(self.operator_order_num_change)
+        Hamiltonian_temp = 0.5*np.sqrt(8*self.E_c2*E_j2)*np.matmul((Y-signal_2_aux*np.eye(self.operator_order_num_change)), (Y-signal_2_aux*np.eye(self.operator_order_num_change)))-E_j2*fun.cos_matrix_n(self.operator_phi_generator(
+            self.E_c2, E_j2, self.operator_order_num_change)-np.power(8*self.E_c2/E_j2, 0.25)*signal_2*np.eye(self.operator_order_num_change), self.trigonometric_function_expand_order_num)+(E_j2-0.5*np.sqrt(8*E_j2*self.E_c2))*np.eye(self.operator_order_num_change)
         Hamiltonian_temp = Hamiltonian_temp[0:self.operator_order_num,
                                             0:self.operator_order_num]
         Hamiltonian = Hamiltonian + \
             np.kron(np.kron(self.operator_identity, Hamiltonian_temp),
                     self.operator_identity)
         # Adding middle coupler's energy to returned Hamiltionian.
-        Hamiltonian_temp = 4*self.E_c3*np.matmul(self.operator_n_generator(self.E_c3, E_j3, self.operator_order_num_change),
-                                                 self.operator_n_generator(self.E_c3, E_j3, self.operator_order_num_change))-E_j3*fun.cos_matrix_n(self.operator_phi_generator(self.E_c3, E_j3, self.operator_order_num_change)-np.power(8*self.E_c3/E_j3, 0.25)*signal_3*np.eye(self.operator_order_num_change), self.trigonometric_function_expand_order_num)+(E_j3-0.5*np.sqrt(8*E_j3*self.E_c3))*np.eye(self.operator_order_num_change)
+        Hamiltonian_temp = 0.5*np.sqrt(8*self.E_c3*E_j3)*np.matmul((Y-signal_3_aux*np.eye(self.operator_order_num_change)), (Y-signal_3_aux*np.eye(self.operator_order_num_change)))-E_j3*fun.cos_matrix_n(self.operator_phi_generator(
+            self.E_c3, E_j3, self.operator_order_num_change)-np.power(8*self.E_c3/E_j3, 0.25)*signal_3*np.eye(self.operator_order_num_change), self.trigonometric_function_expand_order_num)+(E_j3-0.5*np.sqrt(8*E_j3*self.E_c3))*np.eye(self.operator_order_num_change)
         Hamiltonian_temp = Hamiltonian_temp[0:self.operator_order_num,
                                             0:self.operator_order_num]
         Hamiltonian = Hamiltonian + \
@@ -278,7 +283,6 @@ class Circuit():
             operator_n_2, operator_n_3)+8*self.E_c13*np.matmul(operator_n_1, operator_n_3)
         Hamiltonian_interact_magnetic = M_Ej[0][1]*np.matmul(operator_phi_1, operator_phi_2)+M_Ej[0][2]*np.matmul(
             operator_phi_1, operator_phi_3)+M_Ej[1][2]*np.matmul(operator_phi_2, operator_phi_3)
-
         # Adding interaction Hamiltonian to Hamiltonian.
         Hamiltonian = Hamiltonian+Hamiltonian_interact_electric+Hamiltonian_interact_magnetic
 
@@ -295,11 +299,11 @@ class Circuit():
         """
         t_piece = self.t_piece*1E9
         Hamiltonian_middle = self.Hamiltonian_calculation(
-            self.signal_1[2*n-1], self.signal_2[2*n-1], self.signal_3[2*n-1], self.signal_1z[2*n-1], self.signal_2z[2*n-1], self.signal_3z[2*n-1])/ct.H/1E9
+            self.signal_1[2*n-1], self.signal_2[2*n-1], self.signal_3[2*n-1], 0, 0, 0, self.signal_1z[2*n-1], self.signal_2z[2*n-1], self.signal_3z[2*n-1])/ct.H/1E9
         Hamiltonian_left = self.Hamiltonian_calculation(
-            self.signal_1[2*n-2], self.signal_2[2*n-2], self.signal_3[2*n-2], self.signal_1z[2*n-2], self.signal_2z[2*n-2], self.signal_3z[2*n-2])/ct.H/1E9
+            self.signal_1[2*n-1], self.signal_2[2*n-1], self.signal_3[2*n-1], self.signal_1[2*n-2], self.signal_2[2*n-2], self.signal_3[2*n-2], self.signal_1z[2*n-2], self.signal_2z[2*n-2], self.signal_3z[2*n-2])/ct.H/1E9
         Hamiltonian_right = self.Hamiltonian_calculation(
-            self.signal_1[2*n], self.signal_2[2*n], self.signal_3[2*n], self.signal_1z[2*n], self.signal_2z[2*n], self.signal_3z[2*n])/ct.H/1E9
+            self.signal_1[2*n-1], self.signal_2[2*n-1], self.signal_3[2*n-1], self.signal_1[2*n], self.signal_2[2*n], self.signal_3[2*n], self.signal_1z[2*n], self.signal_2z[2*n], self.signal_3z[2*n])/ct.H/1E9
         Hamiltonian_I = (Hamiltonian_right-Hamiltonian_left)/t_piece
         Hamiltonian_II = 4*(Hamiltonian_right+Hamiltonian_left -
                             2*Hamiltonian_middle)/(t_piece**2)
@@ -318,7 +322,7 @@ class Circuit():
             (np.array,np.array): The first return is eigenvalue list and the second return is featurevector matrix.
         """
         H_0 = self.Hamiltonian_calculation(
-            self.signal_1[0], self.signal_2[0], self.signal_3[0], self.signal_1z[0], self.signal_2z[0], self.signal_3z[0])
+            self.signal_1[0], self.signal_2[0], self.signal_3[0], 0, 0, 0, self.signal_1z[0], self.signal_2z[0], self.signal_3z[0])
         eigenvalue, featurevector_temp = np.linalg.eig(H_0)
         eigenvalue = np.real(eigenvalue)
         featurevector = np.zeros(
@@ -330,6 +334,12 @@ class Circuit():
         return (eigenvalue, featurevector)
 
     def dressed_state_subspace_phase_process(self):
+        """The function converting time evolution operator from bare bases to dressed bases, subspace processing and phase reset processing.
+
+        Returns:
+            (np.array,np.array): The first return is the time evolution operator in dressed bases and the 
+            second return is the sub time evolution operator in dressed bases of kets 00 01 10 11. 
+        """
         time_evolution_operator_dressed = np.matmul(np.linalg.inv(
             self.dressed_featurevector), np.matmul(self.time_evolution_operator, self.dressed_featurevector))
         index00 = self.dressed_state_index_find([0, 0, 0])
@@ -350,6 +360,14 @@ class Circuit():
         return (time_evolution_operator_dressed, time_evolution_operator_dressed_sub)
 
     def dressed_state_index_find(self, bare_state_list):
+        """The function finding the corresponding dress state's index according to the bare state's tag.
+
+        Args:
+            bare_state_list (list[int]): Bare state tag.
+
+        Returns:
+            int: The index of dressed state in dressed_featurevector.
+        """
         bare_state_index = 0
         for i in range(3):
             bare_state_index = bare_state_index+bare_state_list[i] * \
@@ -382,23 +400,23 @@ class Circuit():
 
         # 4.Data process.
         self.dataprocess()
-    
+
     def dataprocess(self):
-        namelist=['00','01','10','11','20','02']
-        state_start=[0,0,3,3,3]
-        state_evolution=[1,2,3,4,5] 
-        curve_lists=np.zeros([5,len(self.time_evolution_operator_path)])
-        print(curve_lists)
+        namelist = ['00', '01', '10', '11', '20', '02']
+        state_start = [0, 0, 3, 3, 3]
+        state_evolution = [1, 2, 3, 4, 5]
+        curve_lists = np.zeros([5, len(self.time_evolution_operator_path)])
         index00 = self.dressed_state_index_find([0, 0, 0])
         index01 = self.dressed_state_index_find([0, 1, 0])
         index10 = self.dressed_state_index_find([1, 0, 0])
         index11 = self.dressed_state_index_find([1, 1, 0])
         index20 = self.dressed_state_index_find([2, 0, 0])
         index02 = self.dressed_state_index_find([0, 2, 0])
-        index_list = [index00, index01, index10, index11,index20,index02]
+        index_list = [index00, index01, index10, index11, index20, index02]
         for i in range(len(state_start)):
             for j in range(len(self.time_evolution_operator_path)):
-                curve_lists[i][j]=np.abs(self.time_evolution_operator_path[j][index_list[state_start[i]]][index_list[state_evolution[j]]])
-        
-
-        
+                curve_lists[i][j] = np.abs(
+                    self.time_evolution_operator_path[j][index_list[state_start[i]]][index_list[state_evolution[i]]])**2
+        plt.figure()
+        plt.plot(curve_lists[2])
+        plt.show()
