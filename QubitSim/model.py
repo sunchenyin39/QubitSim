@@ -1,8 +1,8 @@
 # This file contains circuit's model.
 import numpy as np
 import progressbar
-import constant as ct
-import function as fun
+import QubitSim.constant as ct
+import QubitSim.function as fun
 from matplotlib import pyplot as plt
 
 
@@ -79,6 +79,8 @@ class Circuit():
     # operator_order_num_change: Operator expanding order using to calculating H0.
     # trigonometric_function_expand_order_num.
     # exponent_function_expand_order_num.
+    # picture_filename: Filename of picture to be drawed.
+    # npy_filename: Filename of subspace quantum gate.
     t_start = 0
     t_end = 20E-9
     t_piece = 1E-11
@@ -94,6 +96,8 @@ class Circuit():
     operator_order_num_change = operator_order_num+5
     trigonometric_function_expand_order_num = 8
     exponent_function_expand_order_num = 15
+    picture_filename="picture.png"
+    npy_filename="gate.npy"
     # ====================================================================
 
     def __init__(self):
@@ -374,35 +378,11 @@ class Circuit():
                 self.operator_order_num**(2-i)
         return np.argmax(np.abs(self.dressed_featurevector[bare_state_index, :]))
 
-    def run(self):
-        # 1.Getting transformational matrix converting bare bases to dressed bases.
-        # dressed_eigenvalue: Dressed states' energy eigenvalue.
-        # dressed_featurevector: Transformational matrix converting bare bases to dressed bases
-        self.dressed_eigenvalue, self.dressed_featurevector = self.transformational_matrix_generator()
-        self.Ea = (self.dressed_eigenvalue-min(self.dressed_eigenvalue))[1]
-        self.Eb = (self.dressed_eigenvalue-min(self.dressed_eigenvalue))[2]
-
-        # 2.Simulation calculating the whole time evolution operator.
-        p = progressbar.ProgressBar()
-        self.time_evolution_operator = np.eye(self.operator_order_num**3)
-        self.time_evolution_operator_path = []
-        self.time_evolution_operator_path.append(np.matmul(np.linalg.inv(
-            self.dressed_featurevector), np.matmul(self.time_evolution_operator, self.dressed_featurevector)))
-        print("Calculating the whole time evolution operator:")
-        for i in p(range(int(self.t_piece_num/2))):
-            self.time_evolution_operator = np.matmul(
-                self.time_evolution_operator_calculation(i+1), self.time_evolution_operator)
-            self.time_evolution_operator_path.append(np.matmul(np.linalg.inv(
-                self.dressed_featurevector), np.matmul(self.time_evolution_operator, self.dressed_featurevector)))
-
-        # 3.Dressed state process, subspace process, phase process.
-        self.time_evolution_operator_dressed, self.time_evolution_operator_dressed_sub = self.dressed_state_subspace_phase_process()
-
-        # 4.Data process.
-        self.dataprocess()
-
     def dataprocess(self, filename="picture.png"):
         """Dataprocess function used to plot some matrix elements' modulus changing over time.
+
+        Args:
+            filename (str, optional): Filename of picture for saving. Defaults to "picture.png".
         """
         namelist = ['00', '01', '10', '11', '20', '02']
         state_start = [0, 0, 3, 3, 3]
@@ -449,4 +429,34 @@ class Circuit():
             "(Q1,Q2) P"+namelist[state_start[4]]+" to P"+namelist[state_evolution[4]])
         ax.set_xlabel("t/ns")
         plt.tight_layout()
-        plt.savefig(fname=filename, figsize=[16, 10])
+        plt.savefig(fname=filename)
+
+    def run(self):
+        # 1.Getting transformational matrix converting bare bases to dressed bases.
+        # dressed_eigenvalue: Dressed states' energy eigenvalue.
+        # dressed_featurevector: Transformational matrix converting bare bases to dressed bases
+        self.dressed_eigenvalue, self.dressed_featurevector = self.transformational_matrix_generator()
+        self.Ea = (self.dressed_eigenvalue-min(self.dressed_eigenvalue))[1]
+        self.Eb = (self.dressed_eigenvalue-min(self.dressed_eigenvalue))[2]
+
+        # 2.Simulation calculating the whole time evolution operator.
+        p = progressbar.ProgressBar()
+        self.time_evolution_operator = np.eye(self.operator_order_num**3)
+        self.time_evolution_operator_path = []
+        self.time_evolution_operator_path.append(np.matmul(np.linalg.inv(
+            self.dressed_featurevector), np.matmul(self.time_evolution_operator, self.dressed_featurevector)))
+        print("Calculating the whole time evolution operator:")
+        for i in p(range(int(self.t_piece_num/2))):
+            self.time_evolution_operator = np.matmul(
+                self.time_evolution_operator_calculation(i+1), self.time_evolution_operator)
+            self.time_evolution_operator_path.append(np.matmul(np.linalg.inv(
+                self.dressed_featurevector), np.matmul(self.time_evolution_operator, self.dressed_featurevector)))
+
+        # 3.Dressed state process, subspace process, phase process.
+        self.time_evolution_operator_dressed, self.time_evolution_operator_dressed_sub = self.dressed_state_subspace_phase_process()
+
+        # 4.Data process.
+        self.dataprocess(self.picture_filename)
+
+        # 5.Subspace gate saving.
+        np.save(self.npy_filename, self.time_evolution_operator_dressed_sub)
