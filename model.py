@@ -401,11 +401,16 @@ class Circuit():
         # 4.Data process.
         self.dataprocess()
 
-    def dataprocess(self):
+    def dataprocess(self, filename="picture.png"):
+        """Dataprocess function used to plot some matrix elements' modulus changing over time.
+        """
         namelist = ['00', '01', '10', '11', '20', '02']
         state_start = [0, 0, 3, 3, 3]
         state_evolution = [1, 2, 3, 4, 5]
-        curve_lists = np.zeros([5, len(self.time_evolution_operator_path)])
+        curve_lists = np.zeros(
+            [len(state_start), len(self.time_evolution_operator_path)])
+        t_list = np.linspace(self.t_start, self.t_end, int(
+            (self.t_end-self.t_start)/self.t_piece)+1)*1E9
         index00 = self.dressed_state_index_find([0, 0, 0])
         index01 = self.dressed_state_index_find([0, 1, 0])
         index10 = self.dressed_state_index_find([1, 0, 0])
@@ -417,6 +422,31 @@ class Circuit():
             for j in range(len(self.time_evolution_operator_path)):
                 curve_lists[i][j] = np.abs(
                     self.time_evolution_operator_path[j][index_list[state_start[i]]][index_list[state_evolution[i]]])**2
-        plt.figure()
-        plt.plot(curve_lists[2])
-        plt.show()
+        plt.figure(figsize=[19.2, 12])
+        ax = plt.subplot(2, 3, 1)
+        ax.plot(t_list, curve_lists[0])
+        ax.set_title(
+            "(Q1,Q2) P"+namelist[state_start[0]]+" to P"+namelist[state_evolution[0]])
+        ax.set_xlabel("t/ns")
+        ax = plt.subplot(2, 3, 2)
+        ax.plot(t_list, curve_lists[1])
+        ax.set_title(
+            "(Q1,Q2) P"+namelist[state_start[1]]+" to P"+namelist[state_evolution[1]])
+        ax.set_xlabel("t/ns")
+        ax = plt.subplot(2, 3, 3)
+        ax.plot(t_list, curve_lists[2])
+        ax.set_title(
+            "(Q1,Q2) P"+namelist[state_start[2]]+" to P"+namelist[state_evolution[2]])
+        ax.set_xlabel("t/ns")
+        ax = plt.subplot(2, 3, 4)
+        ax.plot(t_list, curve_lists[3])
+        ax.set_title(
+            "(Q1,Q2) P"+namelist[state_start[3]]+" to P"+namelist[state_evolution[3]])
+        ax.set_xlabel("t/ns")
+        ax = plt.subplot(2, 3, 5)
+        ax.plot(t_list, curve_lists[4])
+        ax.set_title(
+            "(Q1,Q2) P"+namelist[state_start[4]]+" to P"+namelist[state_evolution[4]])
+        ax.set_xlabel("t/ns")
+        plt.tight_layout()
+        plt.savefig(fname=filename, figsize=[16, 10])
