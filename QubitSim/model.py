@@ -7,100 +7,102 @@ from matplotlib import pyplot as plt
 
 
 class Circuit():
-    # ====================================================================
-    # Capacitor:
-    # C_1: The left qubit's capacitor.
-    # C_2: The right qubit's capacitor.
-    # C_3: The middle coupler's capacitor.
-    # C_12: The capacitor between left qubit and right qubit.
-    # C_23: The capacitor between right qubit and middle coupler.
-    # C_13: The capacitor between left qubit and middle coupler.
-    C_1 = 88.1E-15+1E-20
-    C_2 = 88.1E-15+1E-20
-    C_3 = 125.4E-15+1E-20
-    C_12 = 6E-16+1E-20
-    C_23 = 10.11E-15+1E-20
-    C_13 = 10.11E-15+1E-20
-
-    # L_off: Off inductance between low coupled notes.
-    L_off = 1
-
-    # Room temperature resistor of Josephson junction:
-    # V_test: Voltage using to test room temperature resister.
-    # R_1_1: The room temperature resistor of first junction of left qubit's DCSQUID.
-    # R_1_2: The room temperature resistor of second junction of left qubit's DCSQUID.
-    # R_2_1: The room temperature resistor of first junction of right qubits's DCSQUID.
-    # R_2_2: The room temperature resistor of second junction of right qubits's DCSQUID.
-    # R_3_1: The room temperature resistor of first junction of middle coupler's DCSQUID.
-    # R_3_2: The room temperature resistor of second junction of middle coupler's DCSQUID.
-    V_test = 2.8E-4
-    R_1_1 = 18000
-    R_1_2 = 18000
-    R_2_1 = 18000
-    R_2_2 = 18000
-    R_3_1 = 3000
-    R_3_2 = 2000
-
-    # Remanence phase:
-    # phi_r1: The remanence phase of left qubits's DCSQUID.
-    # phi_r2: The remanence phase of right qubit's DCSQUID.
-    # phi_r3: The remanence phase of middle coupler's DCSQUID.
-    # PS: phi_ri/2/pi*PHI_ZERO=Phi_ri.
-    phi_r1 = 0.0*np.pi
-    phi_r2 = 0.12*np.pi
-    phi_r3 = 0.39*np.pi
-
-    # Mutual inductance:
-    # M_z_1: The mutual inductance between signal line 1 and left qubit's DCSQUID.
-    # M_z_2: The mutual inductance between signal line 2 and right qubit's DCSQUID.
-    # M_z_3: The mutual inductance between signal line 3 and middle coupler's DCSQUID.
-    # M_x_1: The mutual inductance between signal line 1 and left qubit's main loop.
-    # M_x_2: The mutual inductance between signal line 2 and right qubit's main loop.
-    # M_x_3: The mutual inductance between signal line 3 and middle coupler's main loop.
-    M_z_1 = 1E-12
-    M_z_2 = 1E-12
-    M_z_3 = 1E-12
-    M_x_1 = 1E-12
-    M_x_2 = 1E-12
-    M_x_3 = 1E-12
-
-    # t_start: Starting time point.
-    # t_end: Ending time point.
-    # t_piece: Piece time.
-    # t_piece_num: 2*Number of piece time.
-    # t_list: Time list.
-    # signal_1: Signal adding to left qubit's main loop.
-    # signal_2: Signal adding to right qubit's main loop.
-    # signal_3: Signal adding to middle coupler's main loop.
-    # signal_1z: Signal adding to left qubit's DCSQUID.
-    # signal_2z: Signal adding to right qubit's DCSQUID.
-    # signal_3z: Signal adding to middle coupler's DCSQUID.
-    # operator_order_num.
-    # operator_order_num_change: Operator expanding order using to calculating H0.
-    # trigonometric_function_expand_order_num.
-    # exponent_function_expand_order_num.
-    # picture_filename: Filename of picture to be drawed.
-    # npy_filename: Filename of subspace quantum gate.
-    t_start = 0
-    t_end = 20E-9
-    t_piece = 1E-11
-    t_piece_num = int(2*(t_end-t_start)/t_piece)
-    t_list = np.linspace(t_start, t_end, t_piece_num+1)
-    signal_1 = np.ones(t_piece_num+1)*0
-    signal_2 = np.ones(t_piece_num+1)*0
-    signal_3 = np.ones(t_piece_num+1)*0
-    signal_1z = np.ones(t_piece_num+1)*0
-    signal_2z = np.ones(t_piece_num+1)*0
-    signal_3z = np.ones(t_piece_num+1)*0
-    operator_order_num = 4
-    operator_order_num_change = operator_order_num+5
-    trigonometric_function_expand_order_num = 8
-    exponent_function_expand_order_num = 15
-    picture_filename="picture.png"
-    npy_filename="gate.npy"
-    # ====================================================================
-
     def __init__(self):
+        # ====================================================================
+        # Capacitor:
+        # C_1: The left qubit's capacitor.
+        # C_2: The right qubit's capacitor.
+        # C_3: The middle coupler's capacitor.
+        # C_12: The capacitor between left qubit and right qubit.
+        # C_23: The capacitor between right qubit and middle coupler.
+        # C_13: The capacitor between left qubit and middle coupler.
+        self.C_1 = 88.1E-15+1E-20
+        self.C_2 = 88.1E-15+1E-20
+        self.C_3 = 125.4E-15+1E-20
+        self.C_12 = 6E-16+1E-20
+        self.C_23 = 10.11E-15+1E-20
+        self.C_13 = 10.11E-15+1E-20
+
+        # L_off: Off inductance between low coupled notes.
+        self.L_off = 1
+
+        # Room temperature resistor of Josephson junction:
+        # V_test: Voltage using to test room temperature resister.
+        # R_1_1: The room temperature resistor of first junction of left qubit's DCSQUID.
+        # R_1_2: The room temperature resistor of second junction of left qubit's DCSQUID.
+        # R_2_1: The room temperature resistor of first junction of right qubits's DCSQUID.
+        # R_2_2: The room temperature resistor of second junction of right qubits's DCSQUID.
+        # R_3_1: The room temperature resistor of first junction of middle coupler's DCSQUID.
+        # R_3_2: The room temperature resistor of second junction of middle coupler's DCSQUID.
+        self.V_test = 2.8E-4
+        self.R_1_1 = 18000
+        self.R_1_2 = 18000
+        self.R_2_1 = 18000
+        self.R_2_2 = 18000
+        self.R_3_1 = 3000
+        self.R_3_2 = 2000
+
+        # Remanence phase:
+        # phi_r1: The remanence phase of left qubits's DCSQUID.
+        # phi_r2: The remanence phase of right qubit's DCSQUID.
+        # phi_r3: The remanence phase of middle coupler's DCSQUID.
+        # PS: phi_ri/2/pi*PHI_ZERO=Phi_ri.
+        self.phi_r1 = 0.0*np.pi
+        self.phi_r2 = 0.12*np.pi
+        self.phi_r3 = 0.39*np.pi
+
+        # Mutual inductance:
+        # M_z_1: The mutual inductance between signal line 1 and left qubit's DCSQUID.
+        # M_z_2: The mutual inductance between signal line 2 and right qubit's DCSQUID.
+        # M_z_3: The mutual inductance between signal line 3 and middle coupler's DCSQUID.
+        # M_x_1: The mutual inductance between signal line 1 and left qubit's main loop.
+        # M_x_2: The mutual inductance between signal line 2 and right qubit's main loop.
+        # M_x_3: The mutual inductance between signal line 3 and middle coupler's main loop.
+        self.M_z_1 = 1E-12
+        self.M_z_2 = 1E-12
+        self.M_z_3 = 1E-12
+        self.M_x_1 = 1E-12
+        self.M_x_2 = 1E-12
+        self.M_x_3 = 1E-12
+
+        # t_start: Starting time point.
+        # t_end: Ending time point.
+        # t_piece: Piece time.
+        # operator_order_num.
+        # trigonometric_function_expand_order_num.
+        # exponent_function_expand_order_num.
+        # picture_filename: Filename of picture to be drawed.
+        # npy_filename: Filename of subspace quantum gate.
+        self.t_start = 0
+        self.t_end = 20E-9
+        self.t_piece = 1E-11
+        self.operator_order_num = 4
+        self.trigonometric_function_expand_order_num = 8
+        self.exponent_function_expand_order_num = 15
+        self.picture_filename = "picture.png"
+        self.npy_filename = "gate.npy"
+        # ====================================================================
+
+    def initial(self):
+        # operator_order_num_change: Operator expanding order using to calculating H0.
+        # t_piece_num: 2*Number of piece time.
+        # t_list: Time list.
+        # signal_1: Signal adding to left qubit's main loop.
+        # signal_2: Signal adding to right qubit's main loop.
+        # signal_3: Signal adding to middle coupler's main loop.
+        # signal_1z: Signal adding to left qubit's DCSQUID.
+        # signal_2z: Signal adding to right qubit's DCSQUID.
+        # signal_3z: Signal adding to middle coupler's DCSQUID.
+        self.operator_order_num_change = self.operator_order_num+5
+        self.t_piece_num = int(2*(self.t_end-self.t_start)/self.t_piece)
+        self.t_list = np.linspace(self.t_start, self.t_end, self.t_piece_num+1)
+        self.signal_1 = np.ones(self.t_piece_num+1)*0
+        self.signal_2 = np.ones(self.t_piece_num+1)*0
+        self.signal_3 = np.ones(self.t_piece_num+1)*0
+        self.signal_1z = np.ones(self.t_piece_num+1)*0
+        self.signal_2z = np.ones(self.t_piece_num+1)*0
+        self.signal_3z = np.ones(self.t_piece_num+1)*0
+
         # Josephson junction critical current:
         # I_c1_1: The critical current of first junction of left qubit's DCSQUID.
         # I_c1_2: The critical current of second junction of left qubit's DCSQUID.
