@@ -94,7 +94,8 @@ class Circuit():
         # signal_2z: Signal adding to right qubit's DCSQUID.
         # signal_3z: Signal adding to middle coupler's DCSQUID.
         self.operator_order_num_change = self.operator_order_num+5
-        self.t_piece_num = int(2*(self.t_end-self.t_start)/self.t_piece)
+        self.t_piece_num = int(
+            np.round(2*(self.t_end-self.t_start)/self.t_piece))
         self.t_list = np.linspace(self.t_start, self.t_end, self.t_piece_num+1)
         self.signal_1 = np.ones(self.t_piece_num+1)*0
         self.signal_2 = np.ones(self.t_piece_num+1)*0
@@ -150,8 +151,8 @@ class Circuit():
         Returns:
             np.array: Inductance matrix.
         """
-        phi_list = [self.phi_r1+signal_1z, self.phi_r2 +
-                    signal_2z, self.phi_r3, signal_3z]
+        phi_list = [self.phi_r1+signal_1z*np.pi, self.phi_r2 +
+                    signal_2z*np.pi, self.phi_r3+signal_3z*np.pi]
         Ic_1 = [self.I_c1_1, self.I_c2_1, self.I_c3_1]
         Ic_2 = [self.I_c1_2, self.I_c2_2, self.I_c3_2]
         M_L = np.ones([3, 3])*self.L_off
@@ -327,8 +328,7 @@ class Circuit():
         Returns:
             (np.array,np.array): The first return is eigenvalue list and the second return is featurevector matrix.
         """
-        H_0 = self.Hamiltonian_calculation(
-            self.signal_1[0], self.signal_2[0], self.signal_3[0], 0, 0, 0, self.signal_1z[0], self.signal_2z[0], self.signal_3z[0])
+        H_0 = self.Hamiltonian_calculation(0, 0, 0, 0, 0, 0, 0, 0, 0)
         eigenvalue, featurevector_temp = np.linalg.eig(H_0)
         eigenvalue = np.real(eigenvalue)
         featurevector = np.zeros(
@@ -391,8 +391,8 @@ class Circuit():
         state_evolution = [1, 2, 3, 4, 5]
         curve_lists = np.zeros(
             [len(state_start), len(self.time_evolution_operator_path)])
-        t_list = np.linspace(self.t_start, self.t_end, int(
-            (self.t_end-self.t_start)/self.t_piece)+1)*1E9
+        t_list = np.linspace(self.t_start, self.t_end, int(np.round(
+            (self.t_end-self.t_start)/self.t_piece))+1)*1E9
         index00 = self.dressed_state_index_find([0, 0, 0])
         index01 = self.dressed_state_index_find([0, 1, 0])
         index10 = self.dressed_state_index_find([1, 0, 0])
