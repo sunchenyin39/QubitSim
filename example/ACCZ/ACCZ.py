@@ -72,7 +72,7 @@ circuit.M_x_3 = 1E-12
 # npy_filename: Filename of subspace quantum gate.
 circuit.t_start = 0
 circuit.t_end = 100E-9
-circuit.t_piece = 0.2E-10
+circuit.t_piece = 1E-11
 circuit.operator_order_num = 4
 circuit.trigonometric_function_expand_order_num = 8
 circuit.exponent_function_expand_order_num = 15
@@ -112,5 +112,9 @@ amp_norm = np.mean(envolope[1:])/(pulse_time+rise_time) * (pulse_time+2*rise_tim
 envolope = envolope/amp_norm
 waveform_ts = waveform_ts/amp_norm
 circuit.signal_3z=waveform_ts
-# # 3.Run.
+plt.figure()
+plt.plot(circuit.signal_3z)
+plt.show()
+# 3.Run.
 circuit.run()
+

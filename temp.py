@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import special
 
-a=np.load("idleQ1_idleQ2.npy")
+a = np.load("DCCZ.npy")
 print(a)
