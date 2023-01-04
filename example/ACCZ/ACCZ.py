@@ -78,6 +78,7 @@ circuit.trigonometric_function_expand_order_num = 8
 circuit.exponent_function_expand_order_num = 15
 circuit.picture_filename = "ACCZ.png"
 circuit.npy_filename = "ACCZ.npy"
+circuit.mode = 1
 circuit.initial()
 # ====================================================================
 # 2.Setting signals.
@@ -108,13 +109,20 @@ for i in range(N):
         envolope[i] = (1-np.cos((t_now-pulse_time)/rise_time *
                        np.pi))/2*amplitude*(1+2*wave_para_1)
         waveform_ts[i] = envolope[i]*np.cos(t_now*2*np.pi*frequency)
-amp_norm = np.mean(envolope[1:])/(pulse_time+rise_time) * (pulse_time+2*rise_time)/amplitude
+amp_norm = np.mean(envolope[1:])/(pulse_time+rise_time) * \
+    (pulse_time+2*rise_time)/amplitude
 envolope = envolope/amp_norm
 waveform_ts = waveform_ts/amp_norm
-circuit.signal_3z=waveform_ts
+circuit.signal_3z = waveform_ts
 plt.figure()
 plt.plot(circuit.signal_3z)
 plt.show()
 # 3.Run.
 circuit.run()
-
+# 4.data process
+phase_globle = np.angle(circuit.time_evolution_operator_dressed_sub[0][0])
+phase1 = np.angle(circuit.time_evolution_operator_dressed_sub[1][1])
+phase2 = np.angle(circuit.time_evolution_operator_dressed_sub[2][2])
+phase_U = np.diag([np.exp(-complex(0, 1)*phase_globle), np.exp(-complex(0, 1)*phase1),
+                  np.exp(-complex(0, 1)*phase2), np.exp(-complex(0, 1)*(phase1+phase2-phase_globle))])
+print(np.matmul(phase_U,circuit.time_evolution_operator_dressed_sub))

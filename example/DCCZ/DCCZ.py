@@ -79,6 +79,7 @@ circuit.trigonometric_function_expand_order_num = 8
 circuit.exponent_function_expand_order_num = 15
 circuit.picture_filename = "DCCZ.png"
 circuit.npy_filename = "DCCZ.npy"
+circuit.mode = 1
 circuit.initial()
 # ====================================================================
 # 2.Setting signals.
@@ -112,3 +113,10 @@ plt.plot(circuit.t_list*1E9, circuit.signal_3z)
 plt.show()
 # 3.Run.
 circuit.run()
+# 4.data process
+phase_globle = np.angle(circuit.time_evolution_operator_dressed_sub[0][0])
+phase1 = np.angle(circuit.time_evolution_operator_dressed_sub[1][1])
+phase2 = np.angle(circuit.time_evolution_operator_dressed_sub[2][2])
+phase_U = np.diag([np.exp(-complex(0, 1)*phase_globle), np.exp(-complex(0, 1)*phase1),
+                  np.exp(-complex(0, 1)*phase2), np.exp(-complex(0, 1)*(phase1+phase2-phase_globle))])
+print(np.matmul(phase_U,circuit.time_evolution_operator_dressed_sub))

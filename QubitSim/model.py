@@ -73,6 +73,7 @@ class Circuit():
         # exponent_function_expand_order_num.
         # picture_filename: Filename of picture to be drawed.
         # npy_filename: Filename of subspace quantum gate.
+        # mode: The variable determines if the circuit needs phase gate.
         self.t_start = 0
         self.t_end = 20E-9
         self.t_piece = 1E-11
@@ -81,6 +82,7 @@ class Circuit():
         self.exponent_function_expand_order_num = 15
         self.picture_filename = "picture.png"
         self.npy_filename = "gate.npy"
+        self.mode = 0
         # ====================================================================
 
     def initial(self):
@@ -361,8 +363,9 @@ class Circuit():
                 time_evolution_operator_dressed_sub[i][j] = time_evolution_operator_dressed[index_list[i]][index_list[j]]
         phase_gate = np.array([[1.0, 0, 0, 0], [0, np.exp(2*np.pi*complex(0, 1)/ct.H*self.Eb*self.t_end), 0, 0], [0, 0, np.exp(
             2*np.pi*complex(0, 1)/ct.H*self.Ea*self.t_end), 0], [0, 0, 0, np.exp(2*np.pi*complex(0, 1)/ct.H*(self.Ea+self.Eb)*self.t_end)]])
-        time_evolution_operator_dressed_sub = np.matmul(
-            time_evolution_operator_dressed_sub, phase_gate)
+        if self.mode == 1:
+            time_evolution_operator_dressed_sub = np.matmul(
+                time_evolution_operator_dressed_sub, phase_gate)
         return (time_evolution_operator_dressed, time_evolution_operator_dressed_sub)
 
     def dressed_state_index_find(self, bare_state_list):
