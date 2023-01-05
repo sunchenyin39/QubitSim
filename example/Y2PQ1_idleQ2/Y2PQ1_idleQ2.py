@@ -77,8 +77,8 @@ circuit.t_piece = 1E-11
 circuit.operator_order_num = 4
 circuit.trigonometric_function_expand_order_num = 8
 circuit.exponent_function_expand_order_num = 15
-circuit.picture_filename = "X2PQ1_idleQ2.png"
-circuit.npy_filename = "X2PQ1_idleQ2.npy"
+circuit.picture_filename = "Y2PQ1_idleQ2.png"
+circuit.npy_filename = "Y2PQ1_idleQ2.npy"
 circuit.initial()
 # ====================================================================
 # 2.Setting signals.
@@ -86,7 +86,7 @@ Amplitude = 0.00365
 f01_Q1 = 4.7035E9
 t_delay = 0E-9
 Envolope = np.zeros(len(circuit.t_list))
-phi=np.pi-0.3356
+phi = np.pi-0.3356-np.pi/2
 for i in range(len(circuit.t_list)):
     if circuit.t_list[i] < t_delay:
         Envolope[i] = 0.0
@@ -95,7 +95,40 @@ for i in range(len(circuit.t_list)):
                                t_delay)/(circuit.t_end-t_delay-circuit.t_start))
 circuit.signal_1 = Amplitude*Envolope*np.cos(2*np.pi*f01_Q1*circuit.t_list+phi)
 plt.figure()
-plt.plot(circuit.signal_1)
-plt.show()
+plt.plot(circuit.t_list*1E9, circuit.signal_1)
+plt.title("signal_1")
+plt.xlabel("t/ns")
+plt.tight_layout()
+plt.savefig(fname="Y2PQ1_idleQ2_signal.png")
 # 3.Run.
 circuit.run()
+# 4.Matrix display
+Y2PQ1_idleQ2_matrix = np.load(circuit.npy_filename)
+print("\nY2PQ1_idleQ2_matrix:")
+for i in range(4):
+    for j in range(4):
+        print("%.4f" % np.abs(Y2PQ1_idleQ2_matrix[i][j]), end='_')
+        print("%.4f" % np.angle(Y2PQ1_idleQ2_matrix[i][j]), end=',')
+    print()
+
+Y2PQ1_matrix = np.zeros([2, 2], dtype=complex)
+Y2PQ1_matrix[0][0] = Y2PQ1_idleQ2_matrix[0][0]
+Y2PQ1_matrix[0][1] = Y2PQ1_idleQ2_matrix[0][2]
+Y2PQ1_matrix[1][0] = Y2PQ1_idleQ2_matrix[2][0]
+Y2PQ1_matrix[1][1] = Y2PQ1_idleQ2_matrix[2][2]
+print("\nY2PQ1_matrix:")
+print(Y2PQ1_matrix)
+
+theta_g = (np.angle(Y2PQ1_matrix[0][0])+np.angle(Y2PQ1_matrix[1][1]))/2.0
+phi = 2*np.arccos(np.real(Y2PQ1_matrix[0][0]/np.exp(complex(0, 1)*theta_g)))
+nx = np.imag(Y2PQ1_matrix[0][1] /
+             np.exp(complex(0, 1)*theta_g))/(-1)/np.sin(phi/2)
+ny = np.real(Y2PQ1_matrix[0][1] /
+             np.exp(complex(0, 1)*theta_g))/(-1)/np.sin(phi/2)
+nz = np.imag(Y2PQ1_matrix[0][0] /
+             np.exp(complex(0, 1)*theta_g))/(-1)/np.sin(phi/2)
+print("\ntheta_g=%.4f" % theta_g)
+print("phi=%.4f" % phi)
+print("nx=%.4f" % nx)
+print("ny=%.4f" % ny)
+print("nz=%.4f" % nz)

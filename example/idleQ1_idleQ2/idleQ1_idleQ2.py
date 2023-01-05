@@ -82,3 +82,11 @@ circuit.initial()
 # 2.Setting signals.
 # 3.Run.
 circuit.run()
+# 4.Matrix display
+idleQ1_idleQ2_matrix = np.load(circuit.npy_filename)
+print("\nidleQ1_idleQ2_matrix:")
+for i in range(4):
+    for j in range(4):
+        print("%.4f" % np.abs(idleQ1_idleQ2_matrix[i][j]), end='_')
+        print("%.4f" % np.angle(idleQ1_idleQ2_matrix[i][j]), end=',')
+    print()
