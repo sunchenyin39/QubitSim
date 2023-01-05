@@ -1,6 +1,7 @@
 import numpy as np
 import QubitSim.model
 import QubitSim.constant as ct
+from matplotlib import pyplot as plt
 
 # 0.Build a quantum circuit.
 circuit = QubitSim.model.Circuit()
@@ -71,7 +72,7 @@ circuit.M_x_3 = 1E-12
 # picture_filename: Filename of picture to be drawed.
 # npy_filename: Filename of subspace quantum gate.
 circuit.t_start = 0
-circuit.t_end = 20E-9
+circuit.t_end = 20E-9+0E-9
 circuit.t_piece = 1E-11
 circuit.operator_order_num = 4
 circuit.trigonometric_function_expand_order_num = 8
@@ -82,9 +83,19 @@ circuit.initial()
 # ====================================================================
 # 2.Setting signals.
 Amplitude = 0.00365
-f01_Q1 = 4.703535361394097E9
-Envolope = 1-np.cos(2*np.pi*circuit.t_list/(circuit.t_end-circuit.t_start))
-circuit.signal_1 = Amplitude*Envolope*np.cos(2*np.pi*f01_Q1*circuit.t_list)
+f01_Q1 = 4.7035E9
+t_delay = 0E-9
+Envolope = np.zeros(len(circuit.t_list))
+phi=np.pi-0.3356
+for i in range(len(circuit.t_list)):
+    if circuit.t_list[i] < t_delay:
+        Envolope[i] = 0.0
+    else:
+        Envolope[i] = 1-np.cos(2*np.pi*(circuit.t_list[i] -
+                               t_delay)/(circuit.t_end-t_delay-circuit.t_start))
+circuit.signal_1 = Amplitude*Envolope*np.cos(2*np.pi*f01_Q1*circuit.t_list+phi)
+plt.figure()
+plt.plot(circuit.signal_1)
+plt.show()
 # 3.Run.
 circuit.run()
-print((circuit.E_10-circuit.E_00)/ct.H/1E9)

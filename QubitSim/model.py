@@ -82,7 +82,6 @@ class Circuit():
         self.exponent_function_expand_order_num = 15
         self.picture_filename = "picture.png"
         self.npy_filename = "gate.npy"
-        self.mode = 0
         # ====================================================================
 
     def initial(self):
@@ -363,11 +362,8 @@ class Circuit():
                 time_evolution_operator_dressed_sub[i][j] = time_evolution_operator_dressed[index_list[i]][index_list[j]]
         phase_gate = np.array([[np.exp(2*np.pi*complex(0, 1)/ct.H*self.E_00*self.t_end), 0, 0, 0], [0, np.exp(2*np.pi*complex(0, 1)/ct.H*self.E_01*self.t_end), 0, 0], [0, 0, np.exp(
             2*np.pi*complex(0, 1)/ct.H*self.E_10*self.t_end), 0], [0, 0, 0, np.exp(2*np.pi*complex(0, 1)/ct.H*self.E_11*self.t_end)]])
-        phase_gate_1 = np.array([[np.exp(-2*np.pi*complex(0, 1)/ct.H*self.E_00*self.t_end), 0, 0, 0], [0, np.exp(-2*np.pi*complex(0, 1)/ct.H*self.E_01*self.t_end), 0, 0], [0, 0, np.exp(
-            -2*np.pi*complex(0, 1)/ct.H*self.E_10*self.t_end), 0], [0, 0, 0, np.exp(-2*np.pi*complex(0, 1)/ct.H*self.E_11*self.t_end)]])
         time_evolution_operator_dressed_sub = np.matmul(phase_gate,
-            time_evolution_operator_dressed_sub)
-        # time_evolution_operator_dressed_sub=np.matmul(phase_gate,np.matmul(time_evolution_operator_dressed_sub, phase_gate_1))
+                                                        time_evolution_operator_dressed_sub)
         return (time_evolution_operator_dressed, time_evolution_operator_dressed_sub)
 
     def dressed_state_index_find(self, bare_state_list):
