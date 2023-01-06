@@ -104,7 +104,7 @@ plt.savefig(fname="X2PQ1_idleQ2_signal.png")
 circuit.run()
 # 4.Matrix display
 X2PQ1_idleQ2_matrix = np.load(circuit.npy_filename)
-print("\nX2PQ1_idleQ2_matrix:")
+print("X2PQ1_idleQ2_matrix:")
 for i in range(4):
     for j in range(4):
         print("%.4f" % np.abs(X2PQ1_idleQ2_matrix[i][j]), end='_')
@@ -127,7 +127,7 @@ ny = np.real(X2PQ1_matrix[0][1] /
              np.exp(complex(0, 1)*theta_g))/(-1)/np.sin(phi/2)
 nz = np.imag(X2PQ1_matrix[0][0] /
              np.exp(complex(0, 1)*theta_g))/(-1)/np.sin(phi/2)
-print("\ntheta_g=%.4f" % theta_g)
+print("theta_g=%.4f" % theta_g)
 print("phi=%.4f" % phi)
 print("nx=%.4f" % nx)
 print("ny=%.4f" % ny)

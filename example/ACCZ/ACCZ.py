@@ -115,14 +115,30 @@ envolope = envolope/amp_norm
 waveform_ts = waveform_ts/amp_norm
 circuit.signal_3z = waveform_ts
 plt.figure()
-plt.plot(circuit.signal_3z)
-plt.show()
+plt.plot(circuit.t_list*1E9, circuit.signal_3)
+plt.title("signal_3")
+plt.xlabel("t/ns")
+plt.tight_layout()
+plt.savefig(fname="ACCZ_signal.png")
 # 3.Run.
 circuit.run()
 # 4.data process
-phase_globle = np.angle(circuit.time_evolution_operator_dressed_sub[0][0])
-phase1 = np.angle(circuit.time_evolution_operator_dressed_sub[1][1])
-phase2 = np.angle(circuit.time_evolution_operator_dressed_sub[2][2])
+ACCZ_matrix = np.load(circuit.npy_filename)
+print("ACCZ_matrix:")
+for i in range(4):
+    for j in range(4):
+        print("%.4f" % np.abs(ACCZ_matrix[i][j]), end='_')
+        print("%.4f" % np.angle(ACCZ_matrix[i][j]), end=',')
+    print()
+phase_globle = np.angle(ACCZ_matrix[0][0])
+phase1 = np.angle(ACCZ_matrix[1][1])
+phase2 = np.angle(ACCZ_matrix[2][2])
 phase_U = np.diag([np.exp(-complex(0, 1)*phase_globle), np.exp(-complex(0, 1)*phase1),
                   np.exp(-complex(0, 1)*phase2), np.exp(-complex(0, 1)*(phase1+phase2-phase_globle))])
-print(np.matmul(phase_U,circuit.time_evolution_operator_dressed_sub))
+ACCZ_matrix_free_phase=np.matmul(phase_U,ACCZ_matrix)
+print("\nACCZ_matrix(phase free):")
+for i in range(4):
+    for j in range(4):
+        print("%.4f" % np.abs(ACCZ_matrix_free_phase[i][j]), end='_')
+        print("%.4f" % np.angle(ACCZ_matrix_free_phase[i][j]), end=',')
+    print()

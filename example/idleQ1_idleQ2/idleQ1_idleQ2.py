@@ -84,7 +84,7 @@ circuit.initial()
 circuit.run()
 # 4.Matrix display
 idleQ1_idleQ2_matrix = np.load(circuit.npy_filename)
-print("\nidleQ1_idleQ2_matrix:")
+print("idleQ1_idleQ2_matrix:")
 for i in range(4):
     for j in range(4):
         print("%.4f" % np.abs(idleQ1_idleQ2_matrix[i][j]), end='_')

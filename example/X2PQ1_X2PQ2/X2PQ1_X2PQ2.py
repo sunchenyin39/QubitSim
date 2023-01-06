@@ -1,5 +1,6 @@
 import numpy as np
 import QubitSim.model
+from matplotlib import pyplot as plt
 
 # 0.Build a quantum circuit.
 circuit = QubitSim.model.Circuit()
@@ -84,8 +85,73 @@ Amplitude1 = 0.00365
 Amplitude2 = 0.00380
 f01_Q1 = 4.7035E9
 f01_Q2 = 4.5299E9
+phi_Q1 = np.pi-0.3356
+phi_Q2 = np.pi-0.3356
 Envolope = 1-np.cos(2*np.pi*circuit.t_list/(circuit.t_end-circuit.t_start))
-circuit.signal_1 = Amplitude1*Envolope*np.cos(2*np.pi*f01_Q1*circuit.t_list)
-circuit.signal_2 = Amplitude2*Envolope*np.cos(2*np.pi*f01_Q2*circuit.t_list)
+circuit.signal_1 = Amplitude1*Envolope*np.cos(2*np.pi*f01_Q1*circuit.t_list+phi_Q1)
+circuit.signal_2 = Amplitude2*Envolope*np.cos(2*np.pi*f01_Q2*circuit.t_list+phi_Q2)
+plt.figure()
+ax = plt.subplot(1, 2, 1)
+ax.plot(circuit.t_list*1E9, circuit.signal_1)
+ax.set_title("signal_1")
+ax.set_xlabel("t/ns")
+ax = plt.subplot(1, 2, 2)
+ax.plot(circuit.t_list*1E9, circuit.signal_2)
+ax.set_title("signal_2")
+ax.set_xlabel("t/ns")
+plt.tight_layout()
+plt.savefig(fname="X2PQ1_X2PQ2_signal.png")
 # 3.Run.
 circuit.run()
+# 4.Matrix display
+X2PQ1_X2PQ2_matrix = np.load(circuit.npy_filename)
+print("X2PQ1_X2PQ2_matrix:")
+for i in range(4):
+    for j in range(4):
+        print("%.4f" % np.abs(X2PQ1_X2PQ2_matrix[i][j]), end='_')
+        print("%.4f" % np.angle(X2PQ1_X2PQ2_matrix[i][j]), end=',')
+    print()
+
+X2PQ1_matrix = np.zeros([2, 2], dtype=complex)
+X2PQ1_matrix[0][0] = X2PQ1_X2PQ2_matrix[0][0]/np.sqrt(0.5)
+X2PQ1_matrix[0][1] = X2PQ1_X2PQ2_matrix[0][2]/np.sqrt(0.5)
+X2PQ1_matrix[1][0] = X2PQ1_X2PQ2_matrix[2][0]/np.sqrt(0.5)
+X2PQ1_matrix[1][1] = X2PQ1_X2PQ2_matrix[2][2]/np.sqrt(0.5)
+print("\nX2PQ1_matrix:")
+print(X2PQ1_matrix)
+
+theta_g_Q1 = (np.angle(X2PQ1_matrix[0][0])+np.angle(X2PQ1_matrix[1][1]))/2.0
+phi_Q1 = 2*np.arccos(np.real(X2PQ1_matrix[0][0]/np.exp(complex(0, 1)*theta_g_Q1)))
+nx_Q1 = np.imag(X2PQ1_matrix[0][1] /
+             np.exp(complex(0, 1)*theta_g_Q1))/(-1)/np.sin(phi_Q1/2)
+ny_Q1 = np.real(X2PQ1_matrix[0][1] /
+             np.exp(complex(0, 1)*theta_g_Q1))/(-1)/np.sin(phi_Q1/2)
+nz_Q1 = np.imag(X2PQ1_matrix[0][0] /
+             np.exp(complex(0, 1)*theta_g_Q1))/(-1)/np.sin(phi_Q1/2)
+print("theta_g_Q1=%.4f" % theta_g_Q1)
+print("phi_Q1=%.4f" % phi_Q1)
+print("nx_Q1=%.4f" % nx_Q1)
+print("ny_Q1=%.4f" % ny_Q1)
+print("nz_Q1=%.4f" % nz_Q1)
+
+X2PQ2_matrix = np.zeros([2, 2], dtype=complex)
+X2PQ2_matrix[0][0] = X2PQ1_X2PQ2_matrix[0][0]/np.sqrt(0.5)
+X2PQ2_matrix[0][1] = X2PQ1_X2PQ2_matrix[0][1]/np.sqrt(0.5)
+X2PQ2_matrix[1][0] = X2PQ1_X2PQ2_matrix[1][0]/np.sqrt(0.5)
+X2PQ2_matrix[1][1] = X2PQ1_X2PQ2_matrix[1][1]/np.sqrt(0.5)
+print("\nX2PQ2_matrix:")
+print(X2PQ2_matrix)
+
+theta_g_Q2 = (np.angle(X2PQ2_matrix[0][0])+np.angle(X2PQ2_matrix[1][1]))/2.0
+phi_Q2 = 2*np.arccos(np.real(X2PQ2_matrix[0][0]/np.exp(complex(0, 1)*theta_g_Q2)))
+nx_Q2 = np.imag(X2PQ2_matrix[0][1] /
+             np.exp(complex(0, 1)*theta_g_Q2))/(-1)/np.sin(phi_Q2/2)
+ny_Q2 = np.real(X2PQ2_matrix[0][1] /
+             np.exp(complex(0, 1)*theta_g_Q2))/(-1)/np.sin(phi_Q2/2)
+nz_Q2 = np.imag(X2PQ2_matrix[0][0] /
+             np.exp(complex(0, 1)*theta_g_Q2))/(-1)/np.sin(phi_Q2/2)
+print("theta_g_Q2=%.4f" % theta_g_Q2)
+print("phi_Q2=%.4f" % phi_Q2)
+print("nx_Q2=%.4f" % nx_Q2)
+print("ny_Q2=%.4f" % ny_Q2)
+print("nz_Q2=%.4f" % nz_Q2)
