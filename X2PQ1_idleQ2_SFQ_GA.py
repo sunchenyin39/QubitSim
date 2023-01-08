@@ -15,7 +15,7 @@ def main():
     parameters.dressed_featurevector=np.load("X2PQ1_idleQ2_dressed_featurevector.npy")
     parameters.operator_order_num=4
     parameters.popsize = 100  # GA算法的种群数量
-    parameters.itenumber = 10000  # GA算法的繁衍次数
+    parameters.itenumber =1000  # GA算法的繁衍次数
     parameters.power = 40  # GA算法的复制函数参数 power<popsiza/2
     parameters.pc = 0.9  # GA算法的交叉概率
     parameters.pm = 1  # GA算法的变异概率
