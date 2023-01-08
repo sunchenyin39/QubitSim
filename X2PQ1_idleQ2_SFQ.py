@@ -73,8 +73,8 @@ circuit.M_x_3 = 1E-12
 # picture_filename: Filename of picture to be drawed.
 # npy_filename: Filename of subspace quantum gate.
 circuit.t_start = 0
-circuit.t_end = 40E-12
-circuit.t_piece = 0.01E-12
+circuit.t_end = 19.5E-9
+circuit.t_piece = 2E-12
 circuit.operator_order_num = 4
 circuit.trigonometric_function_expand_order_num = 8
 circuit.exponent_function_expand_order_num = 15
@@ -83,11 +83,15 @@ circuit.npy_filename = "X2PQ1_idleQ2_SFQ.npy"
 circuit.initial()
 # ====================================================================
 # 2.Setting signals.
-Amplitude = 0.05
-t_center = 20E-12
-t_width = 0.8E-12
-circuit.signal_1 = QubitSim.SFQLab.Gaussian_function_list_generator(
+Amplitude = 0.01
+# t_center = 0.2126E-9*np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+#                               14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,31,32,33,34,35,36,37])
+t_center = 0.2126E-9*np.arange(1,90,1) 
+t_width = 20E-12
+circuit.signal_1 = QubitSim.SFQLab.Gaussian_function_sequence_generator(
     circuit.t_list, Amplitude, t_center, t_width)
+# circuit.signal_1z = QubitSim.SFQLab.Gaussian_function_sequence_generator(
+#         circuit.t_list, Amplitude, t_center, t_width)
 plt.figure()
 plt.plot(circuit.t_list*1E9, circuit.signal_1)
 plt.title("signal_1")
@@ -126,4 +130,4 @@ print("phi=%.4f" % phi)
 print("nx=%.4f" % nx)
 print("ny=%.4f" % ny)
 print("nz=%.4f" % nz)
-print("mod=%.4f" % nx**2+ny**2+nz**2)
+print("mod=%.4f" % (nx**2+ny**2+nz**2))
