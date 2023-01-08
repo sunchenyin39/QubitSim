@@ -5,7 +5,7 @@ import SFQControl.GA
 
 def main():
     parameters=SFQControl.GA.Parameters()
-    parameters.Nc = 300  # subsequence所包含的SFQ时钟周期数
+    parameters.Nc = 500  # subsequence所包含的SFQ时钟周期数
     parameters.omegaSFQ = 2*np.pi*25E9  # SFQ时钟频率
     parameters.times = 1  # subsequence重复的次数
     parameters.T_SFQclock = 2*np.pi/parameters.omegaSFQ  # SFQ时钟周期
@@ -14,8 +14,8 @@ def main():
     parameters.dressed_eigenvalue=np.load("X2PQ1_idleQ2_dressed_eigenvalue.npy")
     parameters.dressed_featurevector=np.load("X2PQ1_idleQ2_dressed_featurevector.npy")
     parameters.operator_order_num=4
-    parameters.popsize = 100  # GA算法的种群数量
-    parameters.itenumber =1000  # GA算法的繁衍次数
+    parameters.popsize = 500  # GA算法的种群数量
+    parameters.itenumber =1  # GA算法的繁衍次数
     parameters.power = 40  # GA算法的复制函数参数 power<popsiza/2
     parameters.pc = 0.9  # GA算法的交叉概率
     parameters.pm = 1  # GA算法的变异概率
