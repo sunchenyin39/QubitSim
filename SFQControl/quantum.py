@@ -61,14 +61,14 @@ def dressed_state_index_find(bare_state_list, operator_order_num, dressed_featur
 
 
 def Fedelity(UG_sub, matrix):
-    """Calculating fedelity.
+    """Calculating fedelity and rotation angle.
 
     Args:
         UG_sub (np.array): Sub time evolution operator.
         matrix (np.array): Target matrix.
 
     Returns:
-        float: Fedelity.
+        (float,float): Fedelity and rotation angle.
     """
     F = 0
     single_gate = np.zeros([2, 2], dtype=complex)
@@ -78,9 +78,10 @@ def Fedelity(UG_sub, matrix):
     single_gate[1][1] = UG_sub[2][2]
     theta_g = (np.angle(single_gate[0][0])+np.angle(single_gate[1][1]))/2.0
     single_gate = single_gate/(np.exp(complex(0, 1)*theta_g))
-    identity = np.matmul(single_gate, matrix.transpose().conjugate())
+    identity = np.matmul(single_gate, single_gate.transpose().conjugate())
     F = np.abs(identity[0][0]+identity[1][1])/2.0
-    return F
+    phi = 2*np.arccos(np.real(single_gate[0][0]/np.exp(complex(0, 1)*theta_g)))
+    return F-np.abs(phi-np.pi/2)
 
 
 def rotation_gate(nx, ny, nz, phi_global, phi):

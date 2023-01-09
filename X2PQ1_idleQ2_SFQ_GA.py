@@ -14,13 +14,13 @@ def main():
     parameters.dressed_eigenvalue=np.load("X2PQ1_idleQ2_dressed_eigenvalue.npy")
     parameters.dressed_featurevector=np.load("X2PQ1_idleQ2_dressed_featurevector.npy")
     parameters.operator_order_num=4
-    parameters.popsize = 500  # GA算法的种群数量
-    parameters.itenumber =1  # GA算法的繁衍次数
+    parameters.popsize = 100  # GA算法的种群数量
+    parameters.itenumber =50  # GA算法的繁衍次数
     parameters.power = 40  # GA算法的复制函数参数 power<popsiza/2
     parameters.pc = 0.9  # GA算法的交叉概率
-    parameters.pm = 1  # GA算法的变异概率
+    parameters.pm = 0.9  # GA算法的变异概率
     parameters.mutnumber = 100  # 单次变异基因数量
-    parameters.targetfedelity = 0.9999  # GA算法的目标保真度
+    parameters.targetfedelity = 0.9995  # GA算法的目标保真度
     parameters.matrix = SFQControl.quantum.rotation_gate(1,0,0,0,np.pi/2)  # 目标单比特门
     parameters.popfilename = 'pop.npy'  # 初始种群文件，若打不开则随机生成
     SFQControl.GA.GA(parameters)

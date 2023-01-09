@@ -1,6 +1,6 @@
 import numpy as np
-import progressbar
 import QubitSim.model
+import QubitSim.constant as ct
 import QubitSim.SFQLab
 from matplotlib import pyplot as plt
 
@@ -57,12 +57,12 @@ circuit.phi_r3 = 0.39*np.pi
 # M_x_1: The mutual inductance between signal line 1 and left qubit's main loop.
 # M_x_2: The mutual inductance between signal line 2 and right qubit's main loop.
 # M_x_3: The mutual inductance between signal line 3 and middle coupler's main loop.
-circuit.M_z_1 = 2E-12
-circuit.M_z_2 = 2E-12
-circuit.M_z_3 = 2E-12
-circuit.M_x_1 = 2E-12
-circuit.M_x_2 = 2E-12
-circuit.M_x_3 = 2E-12
+circuit.M_z_1 = 1E-12
+circuit.M_z_2 = 1E-12
+circuit.M_z_3 = 1E-12
+circuit.M_x_1 = 1E-12
+circuit.M_x_2 = 1E-12
+circuit.M_x_3 = 1E-12
 
 # t_start: Starting time point.
 # t_end: Ending time point.
@@ -73,7 +73,7 @@ circuit.M_x_3 = 2E-12
 # picture_filename: Filename of picture to be drawed.
 # npy_filename: Filename of subspace quantum gate.
 circuit.t_start = 0
-circuit.t_end = 40E-12
+circuit.t_end = 18.5E-9
 circuit.t_piece = 2E-12
 circuit.operator_order_num = 4
 circuit.trigonometric_function_expand_order_num = 8
@@ -82,52 +82,50 @@ circuit.picture_filename = "X2PQ1_idleQ2_SFQ.png"
 circuit.npy_filename = "X2PQ1_idleQ2_SFQ.npy"
 circuit.initial()
 # ====================================================================
-# 2.Getting transformational matrix converting bare bases to dressed bases.
-# dressed_eigenvalue: Dressed states' energy eigenvalue.
-# dressed_featurevector: Transformational matrix converting bare bases to dressed bases
-dressed_eigenvalue, dressed_featurevector = circuit.transformational_matrix_generator()
-E_00 = dressed_eigenvalue[0]
-E_01 = dressed_eigenvalue[1]
-E_10 = dressed_eigenvalue[2]
-E_11 = E_10+E_01-E_00
-np.save("X2PQ1_idleQ2_dressed_eigenvalue.npy", dressed_eigenvalue)
-np.save("X2PQ1_idleQ2_dressed_featurevector.npy", dressed_featurevector)
-# ====================================================================
-# 3.Simulation calculating time evolution operator without signals.
-read_mode = 0
-if read_mode == 0:
-    p = progressbar.ProgressBar()
-    time_evolution_operator_0 = np.eye(circuit.operator_order_num**3)
-    print("Calculating the whole time evolution operator without signals:")
-    for i in p(range(int(circuit.t_piece_num/2))):
-        time_evolution_operator_0 = np.matmul(
-            circuit.time_evolution_operator_calculation(i+1), time_evolution_operator_0)
-    np.save("X2PQ1_idleQ2_SFQ_0_matrix.npy", time_evolution_operator_0)
-else:
-    time_evolution_operator_0 = np.load("X2PQ1_idleQ2_SFQ_0_matrix.npy")
-# ====================================================================
-# 4.Setting signals for SFQ pulse
-Amplitude = 0.03
-t_center = 20E-12
-t_width = 4E-12
-circuit.signal_1 = QubitSim.SFQLab.Gaussian_function_list_generator(
+# 2.Setting signals.
+Amplitude = 0.01
+t_center = 0.2126E-9*np.arange(1,87,1)
+t_width = 20E-12
+circuit.signal_1 = QubitSim.SFQLab.Gaussian_function_sequence_generator(
     circuit.t_list, Amplitude, t_center, t_width)
+circuit.signal_1z = QubitSim.SFQLab.Gaussian_function_sequence_generator(
+        circuit.t_list, Amplitude, t_center, t_width)
 plt.figure()
 plt.plot(circuit.t_list*1E9, circuit.signal_1)
 plt.title("signal_1")
 plt.xlabel("t/ns")
 plt.tight_layout()
-plt.savefig(fname="X2PQ1_idleQ2_SFQ_signal.png")
-# ====================================================================
-# 5.Simulation calculating time evolution operator with SFQ pulse.
-read_mode = 0
-if read_mode == 0:
-    p = progressbar.ProgressBar()
-    time_evolution_operator_1 = np.eye(circuit.operator_order_num**3)
-    print("Calculating the whole time evolution operator with SFQ pulse:")
-    for i in p(range(int(circuit.t_piece_num/2))):
-        time_evolution_operator_1 = np.matmul(
-            circuit.time_evolution_operator_calculation(i+1), time_evolution_operator_1)
-    np.save("X2PQ1_idleQ2_SFQ_1_matrix.npy", time_evolution_operator_1)
-else:
-    time_evolution_operator_1 = np.load("X2PQ1_idleQ2_SFQ_1_matrix.npy")
+plt.savefig(fname="X2PQ1_idleQ2_signal.png")
+# 3.Run.
+circuit.run()
+# 4.Matrix display
+X2PQ1_idleQ2_matrix = np.load(circuit.npy_filename)
+print("X2PQ1_idleQ2_matrix:")
+for i in range(4):
+    for j in range(4):
+        print("%.4f" % np.abs(X2PQ1_idleQ2_matrix[i][j]), end='_')
+        print("%.4f" % np.angle(X2PQ1_idleQ2_matrix[i][j]), end=',')
+    print()
+
+X2PQ1_matrix = np.zeros([2, 2], dtype=complex)
+X2PQ1_matrix[0][0] = X2PQ1_idleQ2_matrix[0][0]
+X2PQ1_matrix[0][1] = X2PQ1_idleQ2_matrix[0][2]
+X2PQ1_matrix[1][0] = X2PQ1_idleQ2_matrix[2][0]
+X2PQ1_matrix[1][1] = X2PQ1_idleQ2_matrix[2][2]
+print("\nX2PQ1_matrix:")
+print(X2PQ1_matrix)
+
+theta_g = (np.angle(X2PQ1_matrix[0][0])+np.angle(X2PQ1_matrix[1][1]))/2.0
+phi = 2*np.arccos(np.real(X2PQ1_matrix[0][0]/np.exp(complex(0, 1)*theta_g)))
+nx = np.imag(X2PQ1_matrix[0][1] /
+             np.exp(complex(0, 1)*theta_g))/(-1)/np.sin(phi/2)
+ny = np.real(X2PQ1_matrix[0][1] /
+             np.exp(complex(0, 1)*theta_g))/(-1)/np.sin(phi/2)
+nz = np.imag(X2PQ1_matrix[0][0] /
+             np.exp(complex(0, 1)*theta_g))/(-1)/np.sin(phi/2)
+print("theta_g=%.4f" % theta_g)
+print("phi=%.4f" % phi)
+print("nx=%.4f" % nx)
+print("ny=%.4f" % ny)
+print("nz=%.4f" % nz)
+print("mod=%.4f" % (nx**2+ny**2+nz**2))
