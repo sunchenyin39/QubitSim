@@ -134,4 +134,4 @@ print("mod=%.4f" % (np.sqrt(nx**2+ny**2+nz**2)))
 
 a = np.matmul(X2PQ1_matrix, X2PQ1_matrix.transpose().conjugate())
 print("fedelity=%.5f" % ((np.abs(a[0][0]+a[1][1])/2.0)))
-print("fedelity=%.5f" % ((np.abs(a[0][0]+a[1][1])/2.0)-np.abs(phi-np.pi/2)))
+# print("fedelity=%.5f" % ((np.abs(a[0][0]+a[1][1])/2.0)-np.abs(phi-np.pi/2)))
