@@ -28,6 +28,7 @@ def main():
     popFedelity = SFQControl.GA.popFedelity(
         pop, USFQ, UFR, times, matrix, operator_order_num, dressed_eigenvalue, dressed_featurevector, T_SFQclock)
     individual_fedelity=np.max(popFedelity)
+    print(individual_fedelity)
     individual=pop[np.argmax(popFedelity)]
     np.save("individual.npy",individual)
     # individual = np.load("individual.npy")

@@ -77,11 +77,10 @@ def Fedelity(UG_sub, matrix):
     single_gate[1][0] = UG_sub[2][0]
     single_gate[1][1] = UG_sub[2][2]
     theta_g = (np.angle(single_gate[0][0])+np.angle(single_gate[1][1]))/2.0
-    single_gate = single_gate/(np.exp(complex(0, 1)*theta_g))
-    identity = np.matmul(single_gate, single_gate.transpose().conjugate())
-    F = np.abs(identity[0][0]+identity[1][1])/2.0
     phi = 2*np.arccos(np.real(single_gate[0][0]/np.exp(complex(0, 1)*theta_g)))
-    return F-np.abs(phi-np.pi/2)
+    identity = np.matmul(single_gate, single_gate.transpose().conjugate())
+    F = np.abs(identity[0][0]+identity[1][1])/2.0-np.abs(phi-np.pi/2)
+    return F
 
 
 def rotation_gate(nx, ny, nz, phi_global, phi):
