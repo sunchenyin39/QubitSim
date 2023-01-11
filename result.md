@@ -22,4 +22,4 @@
 ## XP2Q1_idleQ2 SFQ_6
 ![](./example/X2PQ1_idleQ2_SFQ/uncoherent/6/X2PQ1_idleQ2_signal.png)
 ![](./example/X2PQ1_idleQ2_SFQ/uncoherent/6/X2PQ1_idleQ2_SFQ.png)
-![](./example/X2PQ1_idleQ2_SFQ/uncoherent/6/X2PQ1_idleQ2_SFQ_result.PNG)
+![](./example/X2PQ1_idleQ2_SFQ/uncoherent/6/X2PQ1_idleQ2_SFQ_result.png)
