@@ -115,8 +115,8 @@ envolope = envolope/amp_norm
 waveform_ts = waveform_ts/amp_norm
 circuit.signal_3z = waveform_ts
 plt.figure()
-plt.plot(circuit.t_list*1E9, circuit.signal_3)
-plt.title("signal_3")
+plt.plot(circuit.t_list*1E9, circuit.signal_3z)
+plt.title("signal_3z")
 plt.xlabel("t/ns")
 plt.tight_layout()
 plt.savefig(fname="ACCZ_signal.png")
