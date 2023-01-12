@@ -27,6 +27,14 @@
 ![](./example/X2PQ1_idleQ2_SFQ/uncoherent/7/X2PQ1_idleQ2_signal.png)
 ![](./example/X2PQ1_idleQ2_SFQ/uncoherent/7/X2PQ1_idleQ2_SFQ.png)
 ![](./example/X2PQ1_idleQ2_SFQ/uncoherent/7/X2PQ1_idleQ2_SFQ_result.png)
+## XP2Q1_idleQ2 SFQ_8
+![](./example/X2PQ1_idleQ2_SFQ/uncoherent/8/X2PQ1_idleQ2_signal.png)
+![](./example/X2PQ1_idleQ2_SFQ/uncoherent/8/X2PQ1_idleQ2_SFQ.png)
+![](./example/X2PQ1_idleQ2_SFQ/uncoherent/8/X2PQ1_idleQ2_SFQ_result.png)
+## XP2Q1_idleQ2 SFQ_9
+![](./example/X2PQ1_idleQ2_SFQ/uncoherent/9/X2PQ1_idleQ2_signal.png)
+![](./example/X2PQ1_idleQ2_SFQ/uncoherent/9/X2PQ1_idleQ2_SFQ.png)
+![](./example/X2PQ1_idleQ2_SFQ/uncoherent/9/X2PQ1_idleQ2_SFQ_result.png)
 ## ACCZ
 ![](./example/ACCZ/ACCZ_signal.png)
 ![](./example/ACCZ/ACCZ.png)
